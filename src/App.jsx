@@ -55,13 +55,13 @@ const CATEGORY_QUESTIONS = {
 };
 
 const CATEGORY_KEYWORDS = {
-  employee_relations: ["harass", "discriminat", "retaliat", "bully", "hostile", "manager", "coworker", "colleague", "yell", "intimidat", "excluded", "unfair treatment"],
-  financial_fraud: ["fraud", "embezzl", "steal", "theft", "falsif", "invoice", "kickback", "money", "payment", "vendor payment", "expense fraud"],
-  ethics: ["bribe", "bribery", "gift", "conflict of interest", "insider", "kickback", "unethical", "favoritism", "personal gain"],
-  facilities: ["broken", "leak", "air condition", "hvac", "maintenance", "elevator", "clean", "building", "unsafe", "temperature", "noise", "pest"],
-  real_estate: ["lease", "office space", "floor plan", "relocat", "site condition", "landlord", "square footage", "renovation"],
-  compliance: ["regulation", "gdpr", "privacy law", "legal violation", "compliance", "data protection", "audit finding", "regulatory"],
-  code_of_conduct: ["dress code", "attendance", "expense report", "policy violation", "late", "absent", "misuse of company property", "social media policy"],
+  employee_relations: ["harass", "harassment", "discriminat", "retaliat", "bully", "bullying", "hostile", "manager", "supervisor", "boss", "coworker", "co-worker", "colleague", "yell", "yelling", "intimidat", "exclude", "excluded", "unfair treatment", "unfairly", "mistreat", "disrespect", "rude", "demean", "belittle", "toxic", "verbal abuse", "team member", "picking on me", "singled out", "made fun of", "put down"],
+  financial_fraud: ["fraud", "embezzl", "steal", "stealing", "stole", "theft", "falsif", "invoice", "invoices", "kickback", "money", "payment", "payments", "vendor payment", "expense fraud", "accounting", "books", "ledger", "misappropriat", "fake receipt", "forged", "forging", "financial records", "billing", "overcharg", "double bill"],
+  ethics: ["bribe", "bribery", "gift", "gifts", "conflict of interest", "insider", "insider trading", "kickback", "unethical", "favoritism", "personal gain", "nepotism", "self-dealing", "undisclosed relationship", "vendor relationship", "hiring his", "hiring her", "family member", "relative", "personal benefit", "quid pro quo"],
+  facilities: ["broken", "leak", "leaking", "air condition", "hvac", "maintenance", "elevator", "clean", "cleanliness", "dirty", "building", "unsafe", "temperature", "too hot", "too cold", "noise", "noisy", "pest", "pests", "bathroom", "restroom", "parking", "lighting", "plumbing", "water damage", "mold", "smell", "smells", "not working", "office is"],
+  real_estate: ["lease", "leasing", "office space", "floor plan", "relocat", "site condition", "landlord", "square footage", "renovation", "new office", "move offices", "moving offices", "building lease", "space planning"],
+  compliance: ["regulation", "regulatory", "gdpr", "privacy law", "legal violation", "compliance", "data protection", "audit finding", "license", "licensing", "certification", "safety regulation", "environmental regulation", "data breach", "customer data", "personal data", "legal requirement"],
+  code_of_conduct: ["dress code", "attendance", "expense report", "policy violation", "late", "absent", "absenteeism", "misuse of company property", "social media policy", "company property", "personal use", "timesheet", "clocking in", "company laptop", "company car", "using work"],
 };
 
 function analyzeConcern(text) {
