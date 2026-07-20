@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   Users, Building2, Home, ShieldCheck, AlertTriangle, Scale, ClipboardCheck,
   Lock, ArrowLeft, ArrowRight, Check, Search, Upload, X, Copy, UserCheck, Sparkles,
-  LogOut, ClipboardList, Clock, ChevronRight, FileText,
+  LogOut, ClipboardList, Clock, ChevronRight, FileText, BarChart3,
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -54,21 +54,33 @@ const CATEGORY_QUESTIONS = {
   unsure: [],
 };
 
-function suggestCategory(text) {
+const CATEGORY_KEYWORDS = {
+  employee_relations: ["harass", "discriminat", "retaliat", "bully", "hostile", "manager", "coworker", "colleague", "yell", "intimidat", "excluded", "unfair treatment"],
+  financial_fraud: ["fraud", "embezzl", "steal", "theft", "falsif", "invoice", "kickback", "money", "payment", "vendor payment", "expense fraud"],
+  ethics: ["bribe", "bribery", "gift", "conflict of interest", "insider", "kickback", "unethical", "favoritism", "personal gain"],
+  facilities: ["broken", "leak", "air condition", "hvac", "maintenance", "elevator", "clean", "building", "unsafe", "temperature", "noise", "pest"],
+  real_estate: ["lease", "office space", "floor plan", "relocat", "site condition", "landlord", "square footage", "renovation"],
+  compliance: ["regulation", "gdpr", "privacy law", "legal violation", "compliance", "data protection", "audit finding", "regulatory"],
+  code_of_conduct: ["dress code", "attendance", "expense report", "policy violation", "late", "absent", "misuse of company property", "social media policy"],
+};
+
+function analyzeConcern(text) {
   const t = (text || "").toLowerCase();
-  const rules = [
-    { id: "employee_relations", keywords: ["harass", "discriminat", "retaliat", "bully", "hostile"] },
-    { id: "financial_fraud", keywords: ["fraud", "embezzl", "steal", "theft", "falsif", "invoice"] },
-    { id: "ethics", keywords: ["bribe", "bribery", "gift", "conflict of interest", "insider", "kickback"] },
-    { id: "facilities", keywords: ["broken", "leak", "air condition", "hvac", "maintenance", "elevator", "clean"] },
-    { id: "real_estate", keywords: ["lease", "office space", "floor plan", "relocat", "site condition"] },
-    { id: "compliance", keywords: ["regulation", "gdpr", "privacy law", "legal violation", "compliance"] },
-    { id: "code_of_conduct", keywords: ["dress code", "attendance", "expense report", "policy violation"] },
-  ];
-  for (const r of rules) {
-    if (r.keywords.some((k) => t.includes(k))) return CATEGORIES.find((c) => c.id === r.id) || null;
-  }
-  return null;
+  const scores = Object.entries(CATEGORY_KEYWORDS).map(([id, keywords]) => {
+    const hits = keywords.reduce((sum, k) => sum + (t.includes(k) ? 1 : 0), 0);
+    return { id, hits };
+  }).filter((s) => s.hits > 0);
+
+  const totalHits = scores.reduce((sum, s) => sum + s.hits, 0);
+  if (totalHits === 0) return [];
+
+  return scores
+    .map((s) => ({
+      category: CATEGORIES.find((c) => c.id === s.id),
+      confidence: Math.round((s.hits / totalHits) * 100),
+    }))
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 3);
 }
 
 const STEP_TITLES = ["Identity", "What happened", "People & evidence", "More details", "Impact & outcome", "Review"];
@@ -265,6 +277,26 @@ function InvestigatorTopBar({ team, name, onLogout, onDashboard }) {
   );
 }
 
+function HrTopBar({ name, onLogout }) {
+  return (
+    <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center gap-2.5">
+        <Logo />
+        <div className="text-left">
+          <div className="font-semibold text-slate-900 text-base leading-tight">Trust AI <span className="text-slate-400 font-normal">— HR Leadership</span></div>
+          <div className="text-[11px] text-slate-500 leading-tight">Aggregate analytics — no case-level detail</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-slate-600 hidden sm:inline">{name}</span>
+        <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800">
+          <LogOut size={14} /> Log out
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function TrustAIApp() {
   const [view, setView] = useState("landing");
   const [category, setCategory] = useState(null);
@@ -278,18 +310,17 @@ export default function TrustAIApp() {
   const [invTeam, setInvTeam] = useState("");
   const [invName, setInvName] = useState("");
   const [activeCaseId, setActiveCaseId] = useState(null);
+  const [hrName, setHrName] = useState("");
 
   const update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 
-  function startCategory(cat) {
+  function startCategory(cat, description) {
     setCategory(cat);
-    setForm(emptyForm());
+    const f = emptyForm();
+    if (description) f.summary = description;
+    setForm(f);
     setStep(0);
     setView("wizard");
-  }
-
-  function switchCategory(cat) {
-    setCategory(cat);
   }
 
   function toggleOutcome(val) {
@@ -372,6 +403,14 @@ export default function TrustAIApp() {
     setInvTeam(""); setInvName(""); setActiveCaseId(null);
     setView("landing");
   }
+  function hrLogin(name) {
+    setHrName(name);
+    setView("analytics");
+  }
+  function hrLogout() {
+    setHrName("");
+    setView("landing");
+  }
   function openCase(id) {
     setActiveCaseId(id);
     setView("invCase");
@@ -381,24 +420,32 @@ export default function TrustAIApp() {
   }
 
   const isInvestigatorView = view === "invLogin" || view === "invDashboard" || view === "invCase";
+  const isHrView = view === "hrLogin" || view === "analytics";
   const activeCase = cases.find((c) => c.id === activeCaseId);
 
   return (
     <div className="w-full min-h-[560px] bg-slate-50 text-slate-800">
       <div className="max-w-2xl mx-auto px-5 py-8">
-        {!isInvestigatorView && (
+        {!isInvestigatorView && !isHrView && (
           <TopBar onHome={goHome} onTrack={goTrack} showTrack={view !== "landing"} />
         )}
         {isInvestigatorView && view !== "invLogin" && (
           <InvestigatorTopBar team={invTeam} name={invName} onLogout={investigatorLogout} onDashboard={() => setView("invDashboard")} />
         )}
+        {isHrView && view !== "hrLogin" && (
+          <HrTopBar name={hrName} onLogout={hrLogout} />
+        )}
 
         {view === "landing" && (
-          <Landing onStart={() => setView("categories")} onTrack={goTrack} onInvestigator={() => setView("invLogin")} />
+          <Landing onStart={() => setView("describe")} onTrack={goTrack} onInvestigator={() => setView("invLogin")} onHrLeadership={() => setView("hrLogin")} />
+        )}
+
+        {view === "describe" && (
+          <DescribeConcern onSelect={startCategory} onManual={() => setView("categories")} onBack={goHome} />
         )}
 
         {view === "categories" && (
-          <CategoryPicker onSelect={startCategory} onBack={goHome} />
+          <CategoryPicker onSelect={(cat) => startCategory(cat)} onBack={() => setView("describe")} />
         )}
 
         {view === "wizard" && category && (
@@ -406,7 +453,6 @@ export default function TrustAIApp() {
             category={category} step={step} setStep={setStep} form={form} update={update}
             toggleOutcome={toggleOutcome} addFile={addFile} removeFile={removeFile}
             canContinue={canContinue()} onCancel={() => setView("categories")} onSubmit={submitCase}
-            onSwitchCategory={switchCategory}
           />
         )}
 
@@ -435,12 +481,20 @@ export default function TrustAIApp() {
             investigatorName={invName}
           />
         )}
+
+        {view === "hrLogin" && (
+          <HrLogin onLogin={hrLogin} onBack={goHome} />
+        )}
+
+        {view === "analytics" && (
+          <Analytics cases={cases} />
+        )}
       </div>
     </div>
   );
 }
 
-function Landing({ onStart, onTrack, onInvestigator }) {
+function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
   const features = [
     { icon: Lock, title: "Anonymous by design", desc: "Disclose your identity or stay fully anonymous — the choice is always yours, and anonymous cases never store identifying data." },
     { icon: Sparkles, title: "AI-assisted routing", desc: "Not sure where a concern belongs? Describe it in your own words and Trust AI suggests the right category." },
@@ -490,11 +544,102 @@ function Landing({ onStart, onTrack, onInvestigator }) {
       </div>
 
       <div className="text-center border-t border-slate-200 pt-5">
-        <button onClick={onInvestigator} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto">
+        <button onClick={onInvestigator} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto mb-2">
           <ClipboardList size={14} /> Are you on an investigation team? Investigator sign-in
+        </button>
+        <button onClick={onHrLeadership} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto">
+          <BarChart3 size={14} /> HR leadership — view aggregate analytics
         </button>
       </div>
       <p className="text-center text-[11px] text-slate-400 mt-4">Prototype build — proof of concept for internal review</p>
+    </div>
+  );
+}
+
+function DescribeConcern({ onSelect, onManual, onBack }) {
+  const [description, setDescription] = useState("");
+  const [matches, setMatches] = useState(null);
+
+  function analyze() {
+    setMatches(analyzeConcern(description));
+  }
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+        <ArrowLeft size={14} /> Back
+      </button>
+      <div className="inline-flex items-center gap-1.5 bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full mb-4">
+        <Sparkles size={12} /> AI-assisted routing
+      </div>
+      <h1 className="text-xl font-medium text-slate-900 mb-1">What would you like to report?</h1>
+      <p className="text-sm text-slate-600 mb-5">Describe what happened in your own words. Trust AI will suggest which team it likely belongs to — you'll always confirm before it's submitted.</p>
+
+      <textarea
+        rows={5}
+        className={inputCls}
+        placeholder="e.g. My manager keeps making dismissive comments about my work in front of the team, even after I asked him to stop..."
+        value={description}
+        onChange={(e) => { setDescription(e.target.value); setMatches(null); }}
+      />
+      <button
+        disabled={description.trim().length < 10}
+        onClick={analyze}
+        className={`mt-3 flex items-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-md ${description.trim().length >= 10 ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+      >
+        <Sparkles size={14} /> Analyze with AI
+      </button>
+      {description.trim().length > 0 && description.trim().length < 10 && (
+        <p className="text-xs text-slate-400 mt-2">A few more words will help Trust AI suggest the right team.</p>
+      )}
+
+      {matches !== null && (
+        <div className="mt-6">
+          {matches.length === 0 ? (
+            <div className="bg-slate-50 border border-slate-200 rounded-md p-4 mb-4">
+              <p className="text-sm text-slate-600">No confident match found — that's alright. You can choose a category yourself, or send it straight to our intake team to route.</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-slate-700 mb-3">This looks like it may belong to:</p>
+              <div className="flex flex-col gap-2 mb-4">
+                {matches.map((m, i) => (
+                  <div key={m.category.id} className={`border rounded-lg p-4 ${i === 0 ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <m.category.icon size={16} className={i === 0 ? "text-teal-700" : "text-slate-500"} />
+                        <span className="text-sm font-medium text-slate-900">{m.category.label}</span>
+                      </div>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${i === 0 ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600"}`}>{m.confidence}% match</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+                      <div className={`h-full rounded-full ${i === 0 ? "bg-teal-600" : "bg-slate-400"}`} style={{ width: `${m.confidence}%` }} />
+                    </div>
+                    <button onClick={() => onSelect(m.category, description)} className={`text-sm font-medium px-4 py-1.5 rounded-md ${i === 0 ? "bg-teal-600 text-white hover:bg-teal-700" : "border border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
+                      Select {m.category.label} & continue
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button onClick={onManual} className="text-sm text-slate-600 hover:text-teal-700 border border-slate-300 rounded-md px-4 py-2 flex-1 text-center">
+              Choose a category myself
+            </button>
+            <button onClick={() => onSelect(UNSURE_CATEGORY, description)} className="text-sm text-slate-600 hover:text-teal-700 border border-slate-300 rounded-md px-4 py-2 flex-1 text-center">
+              Send straight to intake team
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6 flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-md p-3">
+        <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-slate-600">
+          This description is only used to suggest a category. Nothing is submitted until you review and confirm on the next screen.
+        </p>
+      </div>
     </div>
   );
 }
@@ -571,9 +716,8 @@ function StepHeader({ category, step }) {
   );
 }
 
-function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile, removeFile, canContinue, onCancel, onSubmit, onSwitchCategory }) {
+function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile, removeFile, canContinue, onCancel, onSubmit }) {
   const isLast = step === STEP_TITLES.length - 1;
-  const [suggested, setSuggested] = useState(null);
   const questions = CATEGORY_QUESTIONS[category.id] || [];
 
   return (
@@ -638,25 +782,6 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
             <input className={inputCls} value={form.location} onChange={(e) => update("location", e.target.value)} />
           </Field>
 
-          {category.id === "unsure" && (
-            <div className="mt-2">
-              <button
-                onClick={() => setSuggested(suggestCategory(form.summary) || "none")}
-                className="flex items-center gap-1.5 text-sm text-teal-700 border border-teal-300 rounded-md px-3 py-1.5 hover:bg-teal-50"
-              >
-                <Sparkles size={14} /> Get an AI category suggestion
-              </button>
-              {suggested === "none" && (
-                <p className="text-xs text-slate-500 mt-2">No confident match — that's okay, our triage team will review and route it manually.</p>
-              )}
-              {suggested && suggested !== "none" && (
-                <div className="mt-2 flex items-center justify-between gap-3 bg-teal-50 border border-teal-200 rounded-md p-3">
-                  <span className="text-sm text-slate-700">This sounds like it may belong to <strong>{suggested.label}</strong></span>
-                  <button onClick={() => onSwitchCategory(suggested)} className="text-sm bg-teal-600 text-white px-3 py-1.5 rounded-md hover:bg-teal-700 flex-shrink-0">Switch category</button>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       )}
 
@@ -884,6 +1009,132 @@ function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
           <ReviewRow label="Submitted" value={trackResult.submittedAt} />
         </div>
       )}
+    </div>
+  );
+}
+
+function HrLogin({ onLogin, onBack }) {
+  const [name, setName] = useState("");
+  return (
+    <div className="bg-white border border-slate-200 rounded-lg p-6">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
+        <ArrowLeft size={14} /> Back
+      </button>
+      <div className="w-10 h-10 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
+        <BarChart3 size={20} />
+      </div>
+      <h2 className="text-lg font-medium text-slate-900 mb-1">HR leadership sign-in</h2>
+      <p className="text-sm text-slate-600 mb-6">Simulated SSO — see aggregate trends across every team. No individual case details or reporter identities are shown here.</p>
+
+      <Field label="Your name" required>
+        <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Morgan Reyes" />
+      </Field>
+
+      <button
+        disabled={!name}
+        onClick={() => onLogin(name)}
+        className={`w-full mt-2 text-sm font-medium px-4 py-2.5 rounded-md ${name ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+      >
+        View analytics
+      </button>
+      <p className="text-[11px] text-slate-400 mt-4 text-center">Prototype only — a real deployment would restrict this to a leadership role via SSO.</p>
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-lg p-4">
+      <div className="text-2xl font-semibold text-slate-900">{value}</div>
+      <div className="text-xs text-slate-500 mt-0.5">{label}</div>
+      {sub && <div className="text-[11px] text-slate-400 mt-1">{sub}</div>}
+    </div>
+  );
+}
+
+function BarRow({ label, count, total, colorClass = "bg-teal-600" }) {
+  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+  return (
+    <div className="mb-3 last:mb-0">
+      <div className="flex items-center justify-between text-xs mb-1">
+        <span className="text-slate-700">{label}</span>
+        <span className="text-slate-500">{count}</span>
+      </div>
+      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div className={`h-full ${colorClass} rounded-full`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function Analytics({ cases }) {
+  const total = cases.length;
+  const openCount = cases.filter((c) => c.status !== "Resolved" && c.status !== "Closed").length;
+  const closedCount = total - openCount;
+  const anonymousCount = cases.filter((c) => c.disclosureType === "anonymous").length;
+  const anonymousPct = total > 0 ? Math.round((anonymousCount / total) * 100) : 0;
+
+  const categoryCounts = [...CATEGORIES, UNSURE_CATEGORY].map((c) => ({
+    label: c.label,
+    count: cases.filter((k) => k.category === c.id).length,
+  })).filter((c) => c.count > 0).sort((a, b) => b.count - a.count);
+
+  const statusCounts = STATUS_FLOW.map((s) => ({ label: s, count: cases.filter((c) => c.status === s).length }));
+  const urgencyOrder = ["immediate", "high", "medium", "low"];
+  const urgencyCounts = urgencyOrder.map((u) => ({ label: u, count: cases.filter((c) => c.urgency === u).length, colorClass: u === "immediate" ? "bg-red-500" : u === "high" ? "bg-orange-500" : u === "medium" ? "bg-amber-500" : "bg-slate-400" }));
+
+  const withOutcome = cases.filter((c) => c.investigation && c.investigation.outcome);
+  const outcomeOptions = ["Substantiated", "Partially substantiated", "Unsubstantiated", "Inconclusive"];
+  const outcomeCounts = outcomeOptions.map((o) => ({ label: o, count: withOutcome.filter((c) => c.investigation.outcome === o).length }));
+
+  return (
+    <div>
+      <h1 className="text-xl font-medium text-slate-900 mb-1">Analytics</h1>
+      <p className="text-sm text-slate-600 mb-6">Aggregate trends across all teams — {total} case{total !== 1 ? "s" : ""} tracked this session.</p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <StatCard label="Total cases" value={total} />
+        <StatCard label="Open" value={openCount} />
+        <StatCard label="Resolved / Closed" value={closedCount} />
+        <StatCard label="Anonymous" value={`${anonymousPct}%`} sub={`${anonymousCount} of ${total}`} />
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-3">Cases by category</h3>
+        {categoryCounts.length === 0 ? (
+          <p className="text-sm text-slate-400">No cases yet.</p>
+        ) : (
+          categoryCounts.map((c) => <BarRow key={c.label} label={c.label} count={c.count} total={total} />)
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+        <div className="bg-white border border-slate-200 rounded-lg p-5">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">Cases by status</h3>
+          {statusCounts.map((s) => <BarRow key={s.label} label={s.label} count={s.count} total={total} colorClass="bg-slate-600" />)}
+        </div>
+        <div className="bg-white border border-slate-200 rounded-lg p-5">
+          <h3 className="text-sm font-semibold text-slate-900 mb-3">Cases by urgency</h3>
+          {urgencyCounts.map((u) => <BarRow key={u.label} label={u.label} count={u.count} total={total} colorClass={u.colorClass} />)}
+        </div>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-4">
+        <h3 className="text-sm font-semibold text-slate-900 mb-1">Investigation outcomes</h3>
+        <p className="text-xs text-slate-500 mb-3">Based on {withOutcome.length} of {total} cases with a recorded outcome.</p>
+        {withOutcome.length === 0 ? (
+          <p className="text-sm text-slate-400">No investigations recorded yet.</p>
+        ) : (
+          outcomeCounts.map((o) => <BarRow key={o.label} label={o.label} count={o.count} total={withOutcome.length} colorClass="bg-teal-600" />)
+        )}
+      </div>
+
+      <div className="flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-md p-3">
+        <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-slate-600">
+          This view shows counts only — no case summaries, names, or reporter identities are ever surfaced here, anonymous or named.
+        </p>
+      </div>
     </div>
   );
 }
