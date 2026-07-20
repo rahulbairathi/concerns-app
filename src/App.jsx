@@ -230,9 +230,9 @@ function Field({ label, required, help, children }) {
 
 const inputCls = "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 transition-all";
 
-function HeroGraphic() {
+function HeroGraphic({ large }) {
   return (
-    <svg viewBox="0 0 200 200" className="w-32 h-32 mx-auto mb-5" fill="none">
+    <svg viewBox="0 0 200 200" className={large ? "w-56 h-56 sm:w-64 sm:h-64" : "w-32 h-32 mx-auto mb-5"} fill="none">
       <defs>
         <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#0d9488" />
@@ -283,16 +283,16 @@ function Logo() {
 
 function TopBar({ onHome, onTrack, showTrack }) {
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex items-center justify-between py-4">
       <button onClick={onHome} className="flex items-center gap-2.5">
         <Logo />
         <div className="text-left">
-          <div className="font-semibold text-slate-900 text-base leading-tight">Trust AI</div>
-          <div className="text-[11px] text-slate-500 leading-tight">Confidential concern reporting</div>
+          <div className="font-semibold text-white text-base leading-tight">Trust AI</div>
+          <div className="text-[11px] text-slate-400 leading-tight">Confidential concern reporting</div>
         </div>
       </button>
       {showTrack && (
-        <button onClick={onTrack} className="text-sm text-teal-700 hover:text-teal-800 flex items-center gap-1">
+        <button onClick={onTrack} className="text-sm text-teal-300 hover:text-teal-200 flex items-center gap-1.5 font-medium">
           <Search size={14} /> Track a case
         </button>
       )}
@@ -300,42 +300,46 @@ function TopBar({ onHome, onTrack, showTrack }) {
   );
 }
 
-function InvestigatorTopBar({ team, name, onLogout, onDashboard }) {
+function InvestigatorTopBar({ team, name, onLogout, onDashboard, showNav }) {
   return (
-    <div className="flex items-center justify-between mb-8">
-      <button onClick={onDashboard} className="flex items-center gap-2.5">
+    <div className="flex items-center justify-between py-4">
+      <button onClick={showNav ? onDashboard : undefined} className="flex items-center gap-2.5">
         <Logo />
         <div className="text-left">
-          <div className="font-semibold text-slate-900 text-base leading-tight">Trust AI <span className="text-slate-400 font-normal">— Investigator Portal</span></div>
-          <div className="text-[11px] text-slate-500 leading-tight">{team}</div>
+          <div className="font-semibold text-white text-base leading-tight">Trust AI <span className="text-slate-400 font-normal">— Investigator Portal</span></div>
+          <div className="text-[11px] text-slate-400 leading-tight">{team || "Sign in to continue"}</div>
         </div>
       </button>
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-slate-600 hidden sm:inline">{name}</span>
-        <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800">
-          <LogOut size={14} /> Log out
-        </button>
-      </div>
+      {showNav && (
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-300 hidden sm:inline">{name}</span>
+          <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white transition-colors">
+            <LogOut size={14} /> Log out
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function HrTopBar({ name, onLogout }) {
+function HrTopBar({ name, onLogout, showNav }) {
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex items-center justify-between py-4">
       <div className="flex items-center gap-2.5">
         <Logo />
         <div className="text-left">
-          <div className="font-semibold text-slate-900 text-base leading-tight">Trust AI <span className="text-slate-400 font-normal">— HR Leadership</span></div>
-          <div className="text-[11px] text-slate-500 leading-tight">Aggregate analytics — no case-level detail</div>
+          <div className="font-semibold text-white text-base leading-tight">Trust AI <span className="text-slate-400 font-normal">— HR Leadership</span></div>
+          <div className="text-[11px] text-slate-400 leading-tight">Aggregate analytics — no case-level detail</div>
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <span className="text-sm text-slate-600 hidden sm:inline">{name}</span>
-        <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800">
-          <LogOut size={14} /> Log out
-        </button>
-      </div>
+      {showNav && (
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-300 hidden sm:inline">{name}</span>
+          <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white transition-colors">
+            <LogOut size={14} /> Log out
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -465,24 +469,30 @@ export default function TrustAIApp() {
   const isInvestigatorView = view === "invLogin" || view === "invDashboard" || view === "invCase";
   const isHrView = view === "hrLogin" || view === "analytics";
   const activeCase = cases.find((c) => c.id === activeCaseId);
+  const WIDE_VIEWS = ["categories", "invDashboard", "analytics"];
+  const contentWidthCls = view === "landing" ? "" : WIDE_VIEWS.includes(view) ? "max-w-6xl mx-auto px-6 py-10" : "max-w-2xl mx-auto px-5 py-10";
 
   return (
-    <div className="w-full min-h-[560px] bg-gradient-to-b from-teal-50/50 via-slate-50 to-slate-50 text-slate-800">
-      <div className="max-w-2xl mx-auto px-5 py-10">
-        {!isInvestigatorView && !isHrView && (
-          <TopBar onHome={goHome} onTrack={goTrack} showTrack={view !== "landing"} />
-        )}
-        {isInvestigatorView && view !== "invLogin" && (
-          <InvestigatorTopBar team={invTeam} name={invName} onLogout={investigatorLogout} onDashboard={() => setView("invDashboard")} />
-        )}
-        {isHrView && view !== "hrLogin" && (
-          <HrTopBar name={hrName} onLogout={hrLogout} />
-        )}
+    <div className="w-full min-h-screen bg-slate-50 text-slate-800">
+      <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+        <div className="max-w-6xl mx-auto px-6">
+          {!isInvestigatorView && !isHrView && (
+            <TopBar onHome={goHome} onTrack={goTrack} showTrack={view !== "landing"} />
+          )}
+          {isInvestigatorView && (
+            <InvestigatorTopBar team={invTeam} name={invName} onLogout={investigatorLogout} onDashboard={() => setView("invDashboard")} showNav={view !== "invLogin"} />
+          )}
+          {isHrView && (
+            <HrTopBar name={hrName} onLogout={hrLogout} showNav={view !== "hrLogin"} />
+          )}
+        </div>
+      </div>
 
-        {view === "landing" && (
-          <Landing onStart={() => setView("describe")} onTrack={goTrack} onInvestigator={() => setView("invLogin")} onHrLeadership={() => setView("hrLogin")} />
-        )}
+      {view === "landing" && (
+        <Landing onStart={() => setView("describe")} onTrack={goTrack} onInvestigator={() => setView("invLogin")} onHrLeadership={() => setView("hrLogin")} />
+      )}
 
+      <div className={contentWidthCls}>
         {view === "describe" && (
           <DescribeConcern onSelect={startCategory} onManual={() => setView("categories")} onBack={goHome} />
         )}
@@ -539,74 +549,99 @@ export default function TrustAIApp() {
 
 function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
   const features = [
-    { icon: Lock, title: "Anonymous by design", desc: "Disclose your identity or stay fully anonymous — the choice is always yours, and anonymous cases never store identifying data.", bg: "bg-teal-50", text: "text-teal-600" },
+    { icon: Lock, title: "Anonymous by design", desc: "Disclose your identity or stay fully anonymous — anonymous cases never store identifying data.", bg: "bg-teal-50", text: "text-teal-600" },
     { icon: Sparkles, title: "AI-assisted routing", desc: "Describe your concern in your own words and Trust AI suggests which team it belongs to, with a confidence score.", bg: "bg-violet-50", text: "text-violet-600" },
     { icon: ShieldCheck, title: "Seven dedicated channels", desc: "Employee relations, facilities, real estate, compliance, financial fraud, ethics, and code of conduct.", bg: "bg-blue-50", text: "text-blue-600" },
     { icon: Search, title: "Full visibility", desc: "Track any case status anytime with just a case ID — no login required, even for anonymous reports.", bg: "bg-amber-50", text: "text-amber-600" },
   ];
 
   return (
-    <div>
-      <div className="relative text-center py-8 mb-8 overflow-hidden">
-        <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 bg-teal-200/40 rounded-full blur-3xl" />
-        <div className="pointer-events-none absolute -top-6 -left-16 w-56 h-56 bg-indigo-200/35 rounded-full blur-3xl" />
+    <div className="w-full">
+      {/* Full-bleed dark hero */}
+      <div className="relative w-full overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.15]"
+          style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "26px 26px" }}
+        />
+        <div className="pointer-events-none absolute top-10 right-10 w-80 h-80 bg-teal-500/20 rounded-full blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
 
-        <div className="relative">
-          <HeroGraphic />
-          <div className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 shadow-sm">
-            <Sparkles size={12} /> AI-assisted intake & routing
+        <div className="relative max-w-6xl mx-auto px-6 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="text-center lg:text-left">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur border border-white/20 text-teal-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+              <Sparkles size={12} /> AI-assisted intake & routing
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-3 tracking-tight">
+              Speak up,{" "}
+              <span className="bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent">safely.</span>
+            </h1>
+            <p className="text-sm font-bold uppercase tracking-wide bg-gradient-to-r from-teal-400 to-indigo-400 bg-clip-text text-transparent mb-5">
+              10x easier to report · 10x faster to resolve
+            </p>
+            <p className="text-[15px] text-slate-300 max-w-md mx-auto lg:mx-0 mb-8 leading-relaxed">
+              Trust AI gives every employee a single, confidential channel to raise concerns — from workplace conflicts
+              to compliance and fraud — with AI-assisted routing to the right team.
+            </p>
+            <div className="flex items-center justify-center lg:justify-start gap-3">
+              <button onClick={onStart} className="flex items-center gap-1.5 bg-gradient-to-r from-teal-500 to-teal-400 text-slate-950 text-sm font-bold px-6 py-3 rounded-xl shadow-lg shadow-teal-500/20 hover:shadow-xl hover:shadow-teal-500/30 hover:-translate-y-0.5 transition-all">
+                Report a concern <ArrowRight size={15} />
+              </button>
+              <button onClick={onTrack} className="text-sm font-semibold text-white bg-white/10 backdrop-blur border border-white/20 px-6 py-3 rounded-xl hover:bg-white/15 hover:-translate-y-0.5 transition-all">
+                Track a case
+              </button>
+            </div>
+            <div className="flex items-center justify-center lg:justify-start gap-4 text-xs text-slate-400 mt-8">
+              <span>7 categories</span>
+              <span className="w-1 h-1 rounded-full bg-slate-600" />
+              <span>100% anonymous option</span>
+              <span className="w-1 h-1 rounded-full bg-slate-600" />
+              <span>AI-assisted triage</span>
+            </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
-            Speak up,<br />
-            <span className="bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent">safely.</span>
-          </h1>
-          <p className="text-sm font-bold uppercase tracking-wide bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-            10x easier to report · 10x faster to resolve
-          </p>
-          <p className="text-[15px] text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
-            Trust AI gives every employee a single, confidential channel to raise concerns — from workplace conflicts
-            to compliance and fraud — with AI-assisted routing to the right team.
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <button onClick={onStart} className="flex items-center gap-1.5 bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-semibold px-6 py-3 rounded-xl shadow-md shadow-teal-600/20 hover:shadow-lg hover:shadow-teal-600/30 hover:-translate-y-0.5 transition-all">
-              Report a concern <ArrowRight size={15} />
-            </button>
-            <button onClick={onTrack} className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 px-6 py-3 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
-              Track a case
-            </button>
+
+          <div className="relative flex justify-center">
+            <div className="relative bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-10 sm:p-14">
+              <HeroGraphic large />
+              <div className="absolute -top-3 -right-3 bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                <Sparkles size={11} className="text-teal-600" /> 94% match confidence
+              </div>
+              <div className="absolute -bottom-3 -left-3 bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                <Lock size={11} className="text-indigo-600" /> Fully anonymous
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        {features.map((f) => (
-          <div key={f.title} className="bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5">
-            <div className={`w-10 h-10 rounded-xl ${f.bg} ${f.text} flex items-center justify-center mb-3`}>
-              <f.icon size={19} />
-            </div>
-            <div className="text-sm font-semibold text-slate-900 mb-1.5">{f.title}</div>
-            <div className="text-xs text-slate-500 leading-relaxed">{f.desc}</div>
+      {/* Feature band */}
+      <div className="w-full bg-white border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {features.map((f) => (
+              <div key={f.title} className="bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-5">
+                <div className={`w-10 h-10 rounded-xl ${f.bg} ${f.text} flex items-center justify-center mb-3`}>
+                  <f.icon size={19} />
+                </div>
+                <div className="text-sm font-semibold text-slate-900 mb-1.5">{f.title}</div>
+                <div className="text-xs text-slate-500 leading-relaxed">{f.desc}</div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-xs text-slate-400 mb-5">
-        <span>7 categories</span>
-        <span className="w-1 h-1 rounded-full bg-slate-300" />
-        <span>100% anonymous option</span>
-        <span className="w-1 h-1 rounded-full bg-slate-300" />
-        <span>AI-assisted triage</span>
+      {/* Sign-in links */}
+      <div className="w-full">
+        <div className="max-w-2xl mx-auto px-6 py-10 text-center">
+          <button onClick={onInvestigator} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto mb-2 transition-colors">
+            <ClipboardList size={14} /> Are you on an investigation team? Investigator sign-in
+          </button>
+          <button onClick={onHrLeadership} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto transition-colors">
+            <BarChart3 size={14} /> HR leadership — view aggregate analytics
+          </button>
+          <p className="text-center text-[11px] text-slate-400 mt-6">Prototype build — proof of concept for internal review</p>
+        </div>
       </div>
-
-      <div className="text-center border-t border-slate-200 pt-5">
-        <button onClick={onInvestigator} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto mb-2 transition-colors">
-          <ClipboardList size={14} /> Are you on an investigation team? Investigator sign-in
-        </button>
-        <button onClick={onHrLeadership} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto transition-colors">
-          <BarChart3 size={14} /> HR leadership — view aggregate analytics
-        </button>
-      </div>
-      <p className="text-center text-[11px] text-slate-400 mt-4">Prototype build — proof of concept for internal review</p>
     </div>
   );
 }
@@ -707,12 +742,12 @@ function CategoryPicker({ onSelect, onBack }) {
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
         <ArrowLeft size={14} /> Back
       </button>
-      <h1 className="text-xl font-medium text-slate-900 mb-1">Raise a concern</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Raise a concern</h1>
       <p className="text-sm text-slate-600 mb-6">
         Choose the category that best fits your concern. You can share your name or stay anonymous.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {CATEGORIES.map((c) => {
           const Icon = c.icon;
           return (
@@ -1238,7 +1273,7 @@ function InvestigatorDashboard({ cases, onOpen, onReset }) {
     <div>
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-medium text-slate-900 mb-1">Case queue</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">Case queue</h1>
           <p className="text-sm text-slate-600 mb-6">{cases.length} case{cases.length !== 1 ? "s" : ""} routed to your team · {openCount} open</p>
         </div>
         <button onClick={onReset} className="text-xs text-slate-400 hover:text-slate-600 mt-1">Reset demo data</button>
@@ -1250,7 +1285,7 @@ function InvestigatorDashboard({ cases, onOpen, onReset }) {
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {sorted.map((c) => (
           <button key={c.id} onClick={() => onOpen(c.id)} className="text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm p-4 hover:border-teal-600 transition-colors flex items-center justify-between gap-3">
             <div className="min-w-0">
