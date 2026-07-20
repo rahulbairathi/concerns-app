@@ -1,28 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Users, Building2, Home, ShieldCheck, AlertTriangle, Scale, ClipboardCheck,
   Lock, ArrowLeft, ArrowRight, Check, Search, Upload, X, Copy, UserCheck, Sparkles,
-  LogOut, ClipboardList, Clock, ChevronRight, FileText, BarChart3,
+  LogOut, ClipboardList, Clock, ChevronRight, FileText, BarChart3, Heart, LifeBuoy,
+  Globe, Mail, Phone, ChevronDown,
 } from "lucide-react";
 
 const CATEGORIES = [
-  { id: "employee_relations", label: "Employee relations", desc: "Harassment, discrimination, retaliation, workplace conflict", icon: Users, team: "HR – Employee Relations", color: { bg: "bg-indigo-50", text: "text-indigo-600", ring: "border-indigo-500", fill: "bg-indigo-500" } },
-  { id: "facilities", label: "Facilities", desc: "Building conditions, maintenance, workplace safety", icon: Building2, team: "Facilities Management", color: { bg: "bg-amber-50", text: "text-amber-600", ring: "border-amber-500", fill: "bg-amber-500" } },
-  { id: "real_estate", label: "Real estate", desc: "Leases, space planning, site issues", icon: Home, team: "Real Estate / Corporate Services", color: { bg: "bg-cyan-50", text: "text-cyan-600", ring: "border-cyan-500", fill: "bg-cyan-500" } },
-  { id: "compliance", label: "Compliance", desc: "Regulatory or legal policy violations", icon: ShieldCheck, team: "Compliance", color: { bg: "bg-blue-50", text: "text-blue-600", ring: "border-blue-500", fill: "bg-blue-500" } },
-  { id: "financial_fraud", label: "Financial fraud", desc: "Embezzlement, falsified records, theft", icon: AlertTriangle, team: "Internal Audit / Finance Investigations", color: { bg: "bg-rose-50", text: "text-rose-600", ring: "border-rose-500", fill: "bg-rose-500" } },
-  { id: "ethics", label: "Ethics", desc: "Conflicts of interest, bribery, pressure to act against judgment", icon: Scale, team: "Ethics & Compliance Officer", color: { bg: "bg-violet-50", text: "text-violet-600", ring: "border-violet-500", fill: "bg-violet-500" } },
-  { id: "code_of_conduct", label: "Code of conduct", desc: "Specific documented policy violations", icon: ClipboardCheck, team: "Compliance", color: { bg: "bg-emerald-50", text: "text-emerald-600", ring: "border-emerald-500", fill: "bg-emerald-500" } },
+  { id: "employee_relations", label: "Employee relations", desc: "Harassment, discrimination, retaliation, workplace conflict", icon: Users, team: "HR – Employee Relations", color: { bg: "bg-indigo-50", text: "text-indigo-600", ring: "border-indigo-500", fill: "bg-indigo-500", from: "from-indigo-50" } },
+  { id: "facilities", label: "Facilities", desc: "Building conditions, maintenance, workplace safety", icon: Building2, team: "Facilities Management", color: { bg: "bg-amber-50", text: "text-amber-600", ring: "border-amber-500", fill: "bg-amber-500", from: "from-amber-50" } },
+  { id: "real_estate", label: "Real estate", desc: "Leases, space planning, site issues", icon: Home, team: "Real Estate / Corporate Services", color: { bg: "bg-cyan-50", text: "text-cyan-600", ring: "border-cyan-500", fill: "bg-cyan-500", from: "from-cyan-50" } },
+  { id: "compliance", label: "Compliance", desc: "Regulatory or legal policy violations", icon: ShieldCheck, team: "Compliance", color: { bg: "bg-blue-50", text: "text-blue-600", ring: "border-blue-500", fill: "bg-blue-500", from: "from-blue-50" } },
+  { id: "financial_fraud", label: "Financial fraud", desc: "Embezzlement, falsified records, theft", icon: AlertTriangle, team: "Internal Audit / Finance Investigations", color: { bg: "bg-rose-50", text: "text-rose-600", ring: "border-rose-500", fill: "bg-rose-500", from: "from-rose-50" } },
+  { id: "ethics", label: "Ethics", desc: "Conflicts of interest, bribery, pressure to act against judgment", icon: Scale, team: "Ethics & Compliance Officer", color: { bg: "bg-violet-50", text: "text-violet-600", ring: "border-violet-500", fill: "bg-violet-500", from: "from-violet-50" } },
+  { id: "code_of_conduct", label: "Code of conduct", desc: "Specific documented policy violations", icon: ClipboardCheck, team: "Compliance", color: { bg: "bg-emerald-50", text: "text-emerald-600", ring: "border-emerald-500", fill: "bg-emerald-500", from: "from-emerald-50" } },
 ];
 
-const UNSURE_CATEGORY = { id: "unsure", label: "Not sure which category?", desc: "Describe your concern and Trust AI will help route it.", icon: Search, team: "Intake & Triage Team", color: { bg: "bg-slate-100", text: "text-slate-600", ring: "border-slate-400", fill: "bg-slate-400" } };
+const UNSURE_CATEGORY = { id: "unsure", label: "Not sure which category?", desc: "Describe your concern and Trust AI will help route it.", icon: Search, team: "Intake & Triage Team", color: { bg: "bg-slate-100", text: "text-slate-600", ring: "border-slate-400", fill: "bg-slate-400", from: "from-slate-100" } };
 
 const TEAMS = [...new Set(CATEGORIES.map((c) => c.team))];
 
 const CATEGORY_QUESTIONS = {
   employee_relations: [
     { id: "erConcernType", label: "What type of concern is this?", type: "select", required: true, options: ["Harassment", "Discrimination", "Retaliation", "Workplace conflict"] },
-    { id: "relationshipToInvolved", label: "What is your relationship to the person involved?", type: "select", options: ["My manager", "A peer", "My direct report", "Someone in another team", "Other"] },
     { id: "frequency", label: "Has this happened once or repeatedly?", type: "select", options: ["One-time incident", "Repeated pattern"] },
   ],
   facilities: [
@@ -82,6 +82,97 @@ function analyzeConcern(text) {
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 3);
 }
+
+function generateSummary(category, form, questions) {
+  const clean = (s) => (s || "").trim().replace(/[.\s]+$/, "");
+  const article = /^[aeiou]/i.test(category.label) ? "an" : "a";
+  const parts = [];
+  const ongoing = form.isOngoing === "Yes" ? ", and is described as ongoing" : form.isOngoing === "No" ? ", described as a single incident" : "";
+  parts.push(`This is ${article} ${category.label.toLowerCase()} concern${ongoing}, submitted ${form.disclosureType === "named" ? "with the reporter's identity disclosed" : "anonymously"}.`);
+  if (form.summary) parts.push(clean(form.summary) + ".");
+  if (form.relationshipToInvolved) parts.push(`The reporter's relationship to the person(s) involved: ${form.relationshipToInvolved}.`);
+  if (form.othersInvolved) parts.push(`Others involved or affected: ${clean(form.othersInvolved)}.`);
+  if (form.location) parts.push(`Location: ${form.location}.`);
+  if (form.occurredDate) parts.push(`Reported to have occurred around ${form.occurredDate}.`);
+  (questions || []).forEach((q) => {
+    if (form[q.id]) parts.push(`${clean(q.label.replace(/\?$/, ""))}: ${form[q.id]}.`);
+  });
+  if (form.witnesses) parts.push(`Witnesses: ${clean(form.witnesses)}.`);
+  if (form.priorReport === "Yes" && form.priorReportDetails) parts.push(`This was previously reported: ${clean(form.priorReportDetails)}.`);
+  if (form.impactDescription) parts.push(`Impact described by the reporter: ${clean(form.impactDescription)}.`);
+  if (form.desiredOutcome && form.desiredOutcome.length) parts.push(`Desired outcome: ${form.desiredOutcome.join(", ")}.`);
+  return parts.join(" ");
+}
+
+const COMMON_POLICIES = [
+  { title: "Leave Policy", desc: "Annual, sick, parental, and other leave entitlements — how they accrue, how to request time off, and how approvals work." },
+  { title: "Medical & Health Benefits Policy", desc: "Health insurance coverage, how to file claims, and wellness benefits available to you and eligible dependents." },
+  { title: "Transport & Commute Policy", desc: "Commute reimbursement, company transport options, parking, and guidelines for booking business travel." },
+];
+
+const POLICY_DATA = {
+  global: {
+    label: "Global / Default",
+    policies: [
+      { title: "Code of Business Conduct", desc: "The baseline standard of behavior expected of every employee, everywhere the company operates, including conflicts of interest and gifts." },
+      { title: "Whistleblower Protection Policy", desc: "Explains how good-faith reports are protected from retaliation, and how anonymous reporting is handled where local law allows it." },
+      { title: "Anti-Harassment & Discrimination Policy", desc: "Defines prohibited conduct and the process for raising and investigating concerns about harassment or discrimination." },
+      { title: "Anti-Bribery & Corruption Policy", desc: "Covers gifts, hospitality, facilitation payments, and dealings with government officials and third parties." },
+    ],
+    channels: { email: "ethics@company.com", phone: "+1-800-555-0199 (Toll-free, English)", hours: "24/7, multilingual on request" },
+    crisis: { name: "Find A Helpline (global directory)", phone: "findahelpline.com", note: "An independent directory to find a crisis line in your own country." },
+  },
+  us: {
+    label: "United States",
+    policies: [
+      { title: "Equal Employment Opportunity Policy", desc: "Prohibits discrimination and harassment based on protected characteristics under federal and state law." },
+      { title: "Whistleblower Protection Policy", desc: "Covers protections consistent with US whistleblower statutes, including Sarbanes-Oxley for financial reporting concerns." },
+      { title: "Workplace Safety Policy (OSHA-aligned)", desc: "Standards for reporting unsafe conditions and the process for corrective action." },
+    ],
+    channels: { email: "ethics.us@company.com", phone: "1-800-555-0111 (Toll-free)", hours: "24/7" },
+    crisis: { name: "988 Suicide & Crisis Lifeline", phone: "Call or text 988", note: "Free, confidential, 24/7 — for any kind of emotional crisis, not only suicidal thoughts." },
+  },
+  uk: {
+    label: "United Kingdom",
+    policies: [
+      { title: "Public Interest Disclosure Policy", desc: "Aligned with UK whistleblowing law (PIDA), covering qualifying disclosures and protection from detriment." },
+      { title: "Dignity at Work Policy", desc: "The UK-specific policy on harassment, bullying, and discrimination in the workplace." },
+      { title: "Bribery Act Compliance Policy", desc: "Reflects UK Bribery Act obligations, including the corporate offense of failing to prevent bribery." },
+    ],
+    channels: { email: "ethics.uk@company.com", phone: "0800 555 0122 (Freephone)", hours: "Mon–Fri, 8am–8pm GMT" },
+    crisis: { name: "Samaritans", phone: "116 123", note: "Free, confidential, 24/7 — for anyone struggling to cope." },
+  },
+  india: {
+    label: "India",
+    policies: [
+      { title: "POSH Policy (Prevention of Sexual Harassment)", desc: "Implements the Sexual Harassment of Women at Workplace Act, 2013, including Internal Committee (IC) procedures." },
+      { title: "Whistleblower & Vigil Mechanism Policy", desc: "Covers the vigil mechanism required under the Companies Act, with escalation to the Audit Committee where applicable." },
+      { title: "Prevention of Bribery Policy", desc: "Guidance on gifts, hospitality, and dealings with public officials under Indian anti-corruption law." },
+    ],
+    channels: { email: "ethics.india@company.com", phone: "1800-555-0133 (Toll-free)", hours: "Mon–Sat, 9am–9pm IST" },
+    crisis: { name: "Tele-MANAS (Govt. of India)", phone: "14416 or 1-800-891-4416", note: "Free, 24/7, multilingual national mental health helpline." },
+  },
+  germany: {
+    label: "Germany",
+    policies: [
+      { title: "Hinweisgeberschutzgesetz (Whistleblower Protection) Policy", desc: "Reflects Germany's whistleblower protection law, including required internal reporting channel obligations." },
+      { title: "AGG Compliance Policy", desc: "Anti-discrimination policy aligned with the General Equal Treatment Act (AGG)." },
+      { title: "Data Protection Policy (GDPR/BDSG)", desc: "Covers how personal data — including case data from this tool — is handled under GDPR and German data protection law." },
+    ],
+    channels: { email: "ethics.de@company.com", phone: "0800 555 0144 (Gebührenfrei)", hours: "Mo–Fr, 9–18 Uhr CET" },
+    crisis: { name: "TelefonSeelsorge", phone: "0800 111 0 111 or 0800 111 0 222", note: "Free, anonymous, 24/7 emotional support in German." },
+  },
+  singapore: {
+    label: "Singapore",
+    policies: [
+      { title: "Workplace Fairness Policy", desc: "Reflects Singapore's Tripartite Guidelines and workplace fairness legislation on discrimination." },
+      { title: "Whistleblowing Policy", desc: "Internal reporting and protection standards for employees raising concerns in good faith." },
+      { title: "Anti-Corruption Policy (PCA-aligned)", desc: "Guidance consistent with the Prevention of Corruption Act on gifts and improper payments." },
+    ],
+    channels: { email: "ethics.sg@company.com", phone: "800-555-0155 (Toll-free)", hours: "Mon–Fri, 9am–6pm SGT" },
+    crisis: { name: "Samaritans of Singapore (SOS)", phone: "1767 · CareText (WhatsApp) 9151 1767", note: "Free, confidential, 24-hour hotline and crisis text line." },
+  },
+};
 
 const STEP_TITLES = ["Identity", "What happened", "People & evidence", "More details", "Impact & outcome", "Review"];
 const STATUS_FLOW = ["Submitted", "In review", "Investigating", "Resolved", "Closed"];
@@ -206,9 +297,10 @@ function emptyForm() {
   return {
     disclosureType: "", employeeName: "", employeeId: "",
     summary: "", occurredDate: "", isOngoing: "", location: "",
-    othersInvolved: "", witnesses: "", priorReport: "", priorReportDetails: "",
+    othersInvolved: "", relationshipToInvolved: "", witnesses: "", priorReport: "", priorReportDetails: "",
     attachments: [], referenceNumbers: "",
     urgency: "", impactDescription: "", desiredOutcome: [], followUpConsent: "",
+    draftSummary: "",
   };
 }
 
@@ -273,6 +365,51 @@ function SuccessGraphic() {
   );
 }
 
+function SupportModal({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full p-7 max-h-[85vh] overflow-y-auto">
+        <button onClick={onClose} className="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+          <X size={18} />
+        </button>
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-rose-100 to-indigo-100 text-rose-500 flex items-center justify-center mb-4">
+          <Heart size={22} />
+        </div>
+        <h2 className="text-lg font-bold text-slate-900 mb-2">You're not alone</h2>
+        <p className="text-sm text-slate-600 leading-relaxed mb-4">
+          Speaking up takes courage, whatever the outcome. This process is designed to support you, not put you on trial —
+          you're in control at every step, you can stay anonymous, and nothing is submitted until you choose to.
+        </p>
+        <div className="bg-teal-50 border border-teal-100 rounded-2xl p-4 mb-4">
+          <div className="flex items-center gap-2 mb-1.5">
+            <ShieldCheck size={15} className="text-teal-700" />
+            <span className="text-sm font-semibold text-teal-900">You're protected</span>
+          </div>
+          <p className="text-xs text-teal-800 leading-relaxed">
+            Retaliation of any kind against someone who reports in good faith is strictly prohibited and treated as its own
+            violation — regardless of what the investigation finds.
+          </p>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-1.5">
+            <LifeBuoy size={15} className="text-slate-600" />
+            <span className="text-sm font-semibold text-slate-800">Need to talk to someone right now?</span>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            The Employee Assistance Program (EAP) offers free, confidential support 24/7 — separate from this reporting
+            tool. <span className="font-medium">1-800-XXX-XXXX</span> · available anytime, for any reason.
+          </p>
+        </div>
+        <button onClick={onClose} className="w-full mt-5 text-sm font-semibold bg-slate-900 text-white py-2.5 rounded-xl hover:bg-slate-800 transition-colors">
+          Continue
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Logo() {
   return (
     <div className="rounded-2xl bg-teal-600 text-white flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
@@ -281,7 +418,7 @@ function Logo() {
   );
 }
 
-function TopBar({ onHome, onTrack, showTrack }) {
+function TopBar({ onHome, onTrack, showTrack, onSupport }) {
   return (
     <div className="flex items-center justify-between py-4">
       <button onClick={onHome} className="flex items-center gap-2.5">
@@ -291,16 +428,21 @@ function TopBar({ onHome, onTrack, showTrack }) {
           <div className="text-[11px] text-slate-400 leading-tight">Confidential concern reporting</div>
         </div>
       </button>
-      {showTrack && (
-        <button onClick={onTrack} className="text-sm text-teal-300 hover:text-teal-200 flex items-center gap-1.5 font-medium">
-          <Search size={14} /> Track a case
+      <div className="flex items-center gap-4">
+        <button onClick={onSupport} className="text-sm text-rose-300 hover:text-rose-200 flex items-center gap-1.5 font-medium">
+          <Heart size={14} /> <span className="hidden sm:inline">Support</span>
         </button>
-      )}
+        {showTrack && (
+          <button onClick={onTrack} className="text-sm text-teal-300 hover:text-teal-200 flex items-center gap-1.5 font-medium">
+            <Search size={14} /> Track a case
+          </button>
+        )}
+      </div>
     </div>
   );
 }
 
-function InvestigatorTopBar({ team, name, onLogout, onDashboard, showNav }) {
+function InvestigatorTopBar({ team, name, onLogout, onDashboard, showNav, onSupport }) {
   return (
     <div className="flex items-center justify-between py-4">
       <button onClick={showNav ? onDashboard : undefined} className="flex items-center gap-2.5">
@@ -310,19 +452,24 @@ function InvestigatorTopBar({ team, name, onLogout, onDashboard, showNav }) {
           <div className="text-[11px] text-slate-400 leading-tight">{team || "Sign in to continue"}</div>
         </div>
       </button>
-      {showNav && (
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-300 hidden sm:inline">{name}</span>
-          <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white transition-colors">
-            <LogOut size={14} /> Log out
-          </button>
-        </div>
-      )}
+      <div className="flex items-center gap-4">
+        <button onClick={onSupport} className="text-sm text-rose-300 hover:text-rose-200 flex items-center gap-1.5 font-medium">
+          <Heart size={14} /> <span className="hidden sm:inline">Support</span>
+        </button>
+        {showNav && (
+          <>
+            <span className="text-sm text-slate-300 hidden sm:inline">{name}</span>
+            <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white transition-colors">
+              <LogOut size={14} /> Log out
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
-function HrTopBar({ name, onLogout, showNav }) {
+function HrTopBar({ name, onLogout, showNav, onSupport }) {
   return (
     <div className="flex items-center justify-between py-4">
       <div className="flex items-center gap-2.5">
@@ -332,14 +479,19 @@ function HrTopBar({ name, onLogout, showNav }) {
           <div className="text-[11px] text-slate-400 leading-tight">Aggregate analytics — no case-level detail</div>
         </div>
       </div>
-      {showNav && (
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-300 hidden sm:inline">{name}</span>
-          <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white transition-colors">
-            <LogOut size={14} /> Log out
-          </button>
-        </div>
-      )}
+      <div className="flex items-center gap-4">
+        <button onClick={onSupport} className="text-sm text-rose-300 hover:text-rose-200 flex items-center gap-1.5 font-medium">
+          <Heart size={14} /> <span className="hidden sm:inline">Support</span>
+        </button>
+        {showNav && (
+          <>
+            <span className="text-sm text-slate-300 hidden sm:inline">{name}</span>
+            <button onClick={onLogout} className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white transition-colors">
+              <LogOut size={14} /> Log out
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -358,6 +510,7 @@ export default function TrustAIApp() {
   const [invName, setInvName] = useState("");
   const [activeCaseId, setActiveCaseId] = useState(null);
   const [hrName, setHrName] = useState("");
+  const [showSupport, setShowSupport] = useState(false);
 
   const update = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -404,8 +557,8 @@ export default function TrustAIApp() {
       id, category: category.id, categoryLabel: category.label, team: category.team,
       urgency: form.urgency, status: "Submitted",
       disclosureType: form.disclosureType, submittedAt: new Date().toLocaleString(),
-      summary: form.summary, occurredDate: form.occurredDate, isOngoing: form.isOngoing, location: form.location,
-      othersInvolved: form.othersInvolved, witnesses: form.witnesses,
+      summary: form.summary, draftSummary: form.draftSummary, occurredDate: form.occurredDate, isOngoing: form.isOngoing, location: form.location,
+      othersInvolved: form.othersInvolved, relationshipToInvolved: form.relationshipToInvolved, witnesses: form.witnesses,
       priorReport: form.priorReport, priorReportDetails: form.priorReportDetails,
       attachments: form.attachments, referenceNumbers: form.referenceNumbers,
       impactDescription: form.impactDescription, desiredOutcome: form.desiredOutcome, followUpConsent: form.followUpConsent,
@@ -469,7 +622,7 @@ export default function TrustAIApp() {
   const isInvestigatorView = view === "invLogin" || view === "invDashboard" || view === "invCase";
   const isHrView = view === "hrLogin" || view === "analytics";
   const activeCase = cases.find((c) => c.id === activeCaseId);
-  const WIDE_VIEWS = ["categories", "invDashboard", "analytics"];
+  const WIDE_VIEWS = ["categories", "invDashboard", "analytics", "invLogin", "hrLogin", "policies", "channels", "wellbeing"];
   const contentWidthCls = view === "landing" ? "" : WIDE_VIEWS.includes(view) ? "max-w-6xl mx-auto px-6 py-10" : "max-w-2xl mx-auto px-5 py-10";
 
   return (
@@ -477,24 +630,30 @@ export default function TrustAIApp() {
       <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-6">
           {!isInvestigatorView && !isHrView && (
-            <TopBar onHome={goHome} onTrack={goTrack} showTrack={view !== "landing"} />
+            <TopBar onHome={goHome} onTrack={goTrack} showTrack={view !== "landing"} onSupport={() => setShowSupport(true)} />
           )}
           {isInvestigatorView && (
-            <InvestigatorTopBar team={invTeam} name={invName} onLogout={investigatorLogout} onDashboard={() => setView("invDashboard")} showNav={view !== "invLogin"} />
+            <InvestigatorTopBar team={invTeam} name={invName} onLogout={investigatorLogout} onDashboard={() => setView("invDashboard")} showNav={view !== "invLogin"} onSupport={() => setShowSupport(true)} />
           )}
           {isHrView && (
-            <HrTopBar name={hrName} onLogout={hrLogout} showNav={view !== "hrLogin"} />
+            <HrTopBar name={hrName} onLogout={hrLogout} showNav={view !== "hrLogin"} onSupport={() => setShowSupport(true)} />
           )}
         </div>
       </div>
 
+      <SupportModal open={showSupport} onClose={() => setShowSupport(false)} />
+
       {view === "landing" && (
-        <Landing onStart={() => setView("describe")} onTrack={goTrack} onInvestigator={() => setView("invLogin")} onHrLeadership={() => setView("hrLogin")} />
+        <Landing
+          onStart={() => setView("describe")} onTrack={goTrack}
+          onInvestigator={() => setView("invLogin")} onHrLeadership={() => setView("hrLogin")}
+          onPolicies={() => setView("policies")} onChannels={() => setView("channels")} onWellbeing={() => setView("wellbeing")}
+        />
       )}
 
       <div className={contentWidthCls}>
         {view === "describe" && (
-          <DescribeConcern onSelect={startCategory} onManual={() => setView("categories")} onBack={goHome} />
+          <DescribeConcern onSelect={startCategory} onManual={() => setView("categories")} onBack={goHome} onSupport={() => setShowSupport(true)} />
         )}
 
         {view === "categories" && (
@@ -506,11 +665,12 @@ export default function TrustAIApp() {
             category={category} step={step} setStep={setStep} form={form} update={update}
             toggleOutcome={toggleOutcome} addFile={addFile} removeFile={removeFile}
             canContinue={canContinue()} onCancel={() => setView("categories")} onSubmit={submitCase}
+            onSupport={() => setShowSupport(true)}
           />
         )}
 
         {view === "confirmation" && (
-          <Confirmation caseId={caseId} category={category} disclosureType={form.disclosureType} onDone={goHome} />
+          <Confirmation caseId={caseId} category={category} disclosureType={form.disclosureType} onDone={goHome} onSupport={() => setShowSupport(true)} />
         )}
 
         {view === "track" && (
@@ -535,6 +695,18 @@ export default function TrustAIApp() {
           />
         )}
 
+        {view === "policies" && (
+          <PolicyCorner onBack={goHome} />
+        )}
+
+        {view === "channels" && (
+          <ReportingChannels onBack={goHome} />
+        )}
+
+        {view === "wellbeing" && (
+          <WellbeingResources onBack={goHome} onSupport={() => setShowSupport(true)} />
+        )}
+
         {view === "hrLogin" && (
           <HrLogin onLogin={hrLogin} onBack={goHome} />
         )}
@@ -547,7 +719,7 @@ export default function TrustAIApp() {
   );
 }
 
-function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
+function Landing({ onStart, onTrack, onInvestigator, onHrLeadership, onPolicies, onChannels, onWellbeing }) {
   const features = [
     { icon: Lock, title: "Anonymous by design", desc: "Disclose your identity or stay fully anonymous — anonymous cases never store identifying data.", bg: "bg-teal-50", text: "text-teal-600" },
     { icon: Sparkles, title: "AI-assisted routing", desc: "Describe your concern in your own words and Trust AI suggests which team it belongs to, with a confidence score.", bg: "bg-violet-50", text: "text-violet-600" },
@@ -630,6 +802,50 @@ function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
         </div>
       </div>
 
+      {/* Resources band: three separate, independent entry points */}
+      <div className="w-full bg-slate-50 border-b border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 py-14">
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Resources — independent of reporting a concern</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button onClick={onPolicies} className="text-left bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-6 hover:shadow-xl transition-shadow relative overflow-hidden">
+              <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+              <div className="relative">
+                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-indigo-300 flex items-center justify-center mb-4">
+                  <Globe size={20} />
+                </div>
+                <div className="text-base font-bold text-white mb-1.5">Policy corner</div>
+                <p className="text-xs text-slate-300 leading-relaxed mb-4">Browse leave, medical, transport, and compliance policies by country.</p>
+                <span className="flex items-center gap-1 text-xs font-semibold text-white">Browse policies <ArrowRight size={12} /></span>
+              </div>
+            </button>
+
+            <button onClick={onChannels} className="text-left bg-gradient-to-br from-teal-700 to-teal-900 rounded-3xl p-6 hover:shadow-xl transition-shadow relative overflow-hidden">
+              <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+              <div className="relative">
+                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-teal-200 flex items-center justify-center mb-4">
+                  <Phone size={20} />
+                </div>
+                <div className="text-base font-bold text-white mb-1.5">Other ways to report</div>
+                <p className="text-xs text-teal-100 leading-relaxed mb-4">Email and toll-free hotline numbers — no app required, still anonymous.</p>
+                <span className="flex items-center gap-1 text-xs font-semibold text-white">View channels <ArrowRight size={12} /></span>
+              </div>
+            </button>
+
+            <button onClick={onWellbeing} className="text-left bg-gradient-to-br from-rose-600 to-rose-900 rounded-3xl p-6 hover:shadow-xl transition-shadow relative overflow-hidden">
+              <div className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+              <div className="relative">
+                <div className="w-11 h-11 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-rose-100 flex items-center justify-center mb-4">
+                  <Heart size={20} />
+                </div>
+                <div className="text-base font-bold text-white mb-1.5">Mental health & wellbeing</div>
+                <p className="text-xs text-rose-100 leading-relaxed mb-4">Crisis lines, EAP counseling, and everyday wellbeing support — confidential.</p>
+                <span className="flex items-center gap-1 text-xs font-semibold text-white">Find support <ArrowRight size={12} /></span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Sign-in links */}
       <div className="w-full">
         <div className="max-w-2xl mx-auto px-6 py-10 text-center">
@@ -646,40 +862,84 @@ function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
   );
 }
 
-function DescribeConcern({ onSelect, onManual, onBack }) {
+function DescribeConcern({ onSelect, onManual, onBack, onSupport }) {
   const [description, setDescription] = useState("");
   const [matches, setMatches] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
   function analyze() {
-    setMatches(analyzeConcern(description));
+    setAnalyzing(true);
+    setMatches(null);
+    setTimeout(() => {
+      setMatches(analyzeConcern(description));
+      setAnalyzing(false);
+    }, 700);
   }
 
   return (
-    <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
-        <ArrowLeft size={14} /> Back
-      </button>
-      <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-100 text-teal-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-        <Sparkles size={12} /> AI-assisted routing
-      </div>
-      <h1 className="text-xl font-semibold text-slate-900 mb-1">What would you like to report?</h1>
-      <p className="text-sm text-slate-600 mb-5">Describe what happened in your own words. Trust AI will suggest which team it likely belongs to — you'll always confirm before it's submitted.</p>
+    <div className="relative">
+      <div className="pointer-events-none absolute -top-16 -right-10 w-72 h-72 bg-teal-200/25 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute top-40 -left-16 w-72 h-72 bg-indigo-200/25 rounded-full blur-3xl" />
 
-      <textarea
-        rows={5}
-        className={inputCls}
-        placeholder="e.g. My manager keeps making dismissive comments about my work in front of the team, even after I asked him to stop..."
-        value={description}
-        onChange={(e) => { setDescription(e.target.value); setMatches(null); }}
-      />
-      <button
-        disabled={description.trim().length < 10}
-        onClick={analyze}
-        className={`mt-3 flex items-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-xl ${description.trim().length >= 10 ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
-      >
-        <Sparkles size={14} /> Analyze with AI
-      </button>
-      {description.trim().length > 0 && description.trim().length < 10 && (
+      <div className="relative">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+          <ArrowLeft size={14} /> Back
+        </button>
+
+        <div className="flex items-start gap-2.5 bg-gradient-to-r from-rose-50 to-indigo-50 border border-rose-100 rounded-2xl p-4 mb-5">
+          <Heart size={16} className="text-rose-500 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-slate-700 leading-relaxed">
+            Take your time — there's no wrong way to describe what happened. You're protected from retaliation for reporting
+            in good faith.{" "}
+            <button onClick={onSupport} className="font-semibold text-rose-600 hover:text-rose-700 underline underline-offset-2">
+              View support resources
+            </button>
+          </p>
+        </div>
+
+        <div className="bg-white border border-slate-200/70 rounded-3xl shadow-sm p-6 sm:p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-100 text-teal-700 text-[11px] font-semibold px-2.5 py-1 rounded-full mb-1">
+                AI-assisted routing
+              </div>
+              <h1 className="text-xl font-bold text-slate-900">What would you like to report?</h1>
+            </div>
+          </div>
+          <p className="text-sm text-slate-600 mb-5">Describe what happened in your own words. Trust AI will suggest which team it likely belongs to — you'll always confirm before it's submitted.</p>
+
+          <textarea
+            rows={5}
+            className={inputCls}
+            placeholder="e.g. My manager keeps making dismissive comments about my work in front of the team, even after I asked him to stop..."
+            value={description}
+            onChange={(e) => { setDescription(e.target.value); setMatches(null); }}
+          />
+          <div className="flex flex-wrap items-center gap-3 mt-3">
+            <button
+              disabled={description.trim().length < 10 || analyzing}
+              onClick={analyze}
+              className={`flex items-center gap-1.5 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all ${description.trim().length >= 10 && !analyzing ? "bg-gradient-to-r from-teal-600 to-indigo-600 text-white shadow-sm hover:shadow-md" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+            >
+              {analyzing ? (
+                <>
+                  <Sparkles size={14} className="animate-pulse" /> Analyzing your description…
+                </>
+              ) : (
+                <>
+                  <Sparkles size={14} /> Analyze with AI
+                </>
+              )}
+            </button>
+            <span className="text-xs text-slate-400">or</span>
+            <button onClick={onManual} className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-800 border border-slate-300 px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+              <ClipboardList size={14} /> Choose the category myself
+            </button>
+          </div>
+          {description.trim().length > 0 && description.trim().length < 10 && (
         <p className="text-xs text-slate-400 mt-2">A few more words will help Trust AI suggest the right team.</p>
       )}
 
@@ -732,6 +992,173 @@ function DescribeConcern({ onSelect, onManual, onBack }) {
           This description is only used to suggest a category. Nothing is submitted until you review and confirm on the next screen.
         </p>
       </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CountrySelector({ country, setCountry, onChange }) {
+  return (
+    <div className="flex flex-wrap gap-2 mb-6">
+      {Object.entries(POLICY_DATA).map(([key, d]) => (
+        <button
+          key={key}
+          onClick={() => { setCountry(key); if (onChange) onChange(); }}
+          className={`text-sm font-medium px-4 py-2 rounded-xl border transition-all ${country === key ? "bg-slate-900 text-white border-slate-900 shadow-sm" : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"}`}
+        >
+          {d.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PolicyCorner({ onBack }) {
+  const [country, setCountry] = useState("global");
+  const [openIdx, setOpenIdx] = useState(null);
+  const data = POLICY_DATA[country];
+  const allPolicies = [...data.policies, ...COMMON_POLICIES];
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+        <ArrowLeft size={14} /> Back
+      </button>
+
+      <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+        <Globe size={20} />
+      </div>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Policy corner</h1>
+      <p className="text-sm text-slate-600 mb-6">Policies vary by country. Select where you're based to see what applies to you.</p>
+
+      <CountrySelector country={country} setCountry={setCountry} onChange={() => setOpenIdx(null)} />
+
+      <h2 className="text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wide">Policies — {data.label}</h2>
+      <div className="flex flex-col gap-2">
+        {allPolicies.map((p, i) => (
+          <div key={p.title} className="bg-white border border-slate-200/70 rounded-2xl shadow-sm overflow-hidden">
+            <button
+              onClick={() => setOpenIdx(openIdx === i ? null : i)}
+              className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-slate-50 transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <FileText size={15} />
+                </div>
+                <span className="text-sm font-semibold text-slate-900">{p.title}</span>
+              </div>
+              <ChevronDown size={16} className={`text-slate-400 flex-shrink-0 transition-transform ${openIdx === i ? "rotate-180" : ""}`} />
+            </button>
+            {openIdx === i && (
+              <div className="px-4 pb-4 pl-[3.75rem]">
+                <p className="text-xs text-slate-600 leading-relaxed">{p.desc}</p>
+                <p className="text-[11px] text-slate-400 mt-2 italic">Sample summary for this prototype — link to your intranet policy library in production.</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ReportingChannels({ onBack }) {
+  const [country, setCountry] = useState("global");
+  const data = POLICY_DATA[country];
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+        <ArrowLeft size={14} /> Back
+      </button>
+
+      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4">
+        <Phone size={20} />
+      </div>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Other ways to report</h1>
+      <p className="text-sm text-slate-600 mb-6">You don't have to use this app to raise a concern. These channels are staffed independently and work exactly the same way — including the option to stay anonymous.</p>
+
+      <CountrySelector country={country} setCountry={setCountry} />
+
+      <h2 className="text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wide">Reporting channels — {data.label}</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-3">
+            <Mail size={18} />
+          </div>
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Email</div>
+          <p className="text-sm font-medium text-slate-900 break-all">{data.channels.email}</p>
+        </div>
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5">
+          <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-3">
+            <Phone size={18} />
+          </div>
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Ethics hotline</div>
+          <p className="text-sm font-medium text-slate-900">{data.channels.phone}</p>
+          <p className="text-xs text-slate-400 mt-1">{data.channels.hours}</p>
+        </div>
+      </div>
+      <div className="flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-2xl p-3.5 mt-4 max-w-2xl">
+        <Lock size={13} className="text-slate-500 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-slate-600 leading-relaxed">
+          These channels are independent of this app — you can report by phone or email without ever using Trust AI, and still stay anonymous by request.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function WellbeingResources({ onBack, onSupport }) {
+  const [country, setCountry] = useState("global");
+  const data = POLICY_DATA[country];
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+        <ArrowLeft size={14} /> Back
+      </button>
+
+      <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
+        <Heart size={20} />
+      </div>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Mental health & wellbeing</h1>
+      <p className="text-sm text-slate-600 mb-6">These resources are separate from Trust AI and from your employer's reporting system. Reaching out is confidential.</p>
+
+      <CountrySelector country={country} setCountry={setCountry} />
+
+      <h2 className="text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wide">Support — {data.label}</h2>
+      <div className="max-w-2xl flex flex-col gap-3">
+        <div className="bg-gradient-to-r from-rose-50 to-indigo-50 border border-rose-100 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Heart size={16} className="text-rose-500" />
+            <span className="text-sm font-bold text-slate-900">{data.crisis.name}</span>
+          </div>
+          <p className="text-sm font-semibold text-slate-800">{data.crisis.phone}</p>
+          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{data.crisis.note}</p>
+        </div>
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <LifeBuoy size={15} className="text-slate-600" />
+            <span className="text-sm font-semibold text-slate-800">Employee Assistance Program (EAP)</span>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Free, confidential counseling sessions, available whether or not you've raised a concern here — talking to the EAP is not the same as filing a report, and nothing is shared with your manager.
+          </p>
+        </div>
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Sparkles size={15} className="text-violet-500" />
+            <span className="text-sm font-semibold text-slate-800">Everyday wellbeing</span>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Subsidized mindfulness and sleep app access, manager check-in guides, and flexible-work options for employees managing stress or burnout.
+          </p>
+        </div>
+      </div>
+      <button onClick={onSupport} className="mt-5 text-sm font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1.5">
+        <Heart size={14} /> Open the support panel
+      </button>
     </div>
   );
 }
@@ -798,9 +1225,14 @@ function StepHeader({ category, step }) {
         ))}
       </div>
       <div className="flex items-center justify-between">
-        <div>
-          <div className={`text-xs font-semibold mb-1 ${category.color.text}`}>{category.label}</div>
-          <h2 className="text-lg font-semibold text-slate-900">{STEP_TITLES[step]}</h2>
+        <div className="flex items-center gap-3">
+          <div className={`w-9 h-9 rounded-xl ${category.color.bg} ${category.color.text} flex items-center justify-center flex-shrink-0`}>
+            <category.icon size={16} />
+          </div>
+          <div>
+            <div className={`text-xs font-semibold mb-0.5 ${category.color.text}`}>{category.label}</div>
+            <h2 className="text-lg font-semibold text-slate-900">{STEP_TITLES[step]}</h2>
+          </div>
         </div>
         <div className="text-xs text-slate-400 font-medium">Step {step + 1} of {STEP_TITLES.length}</div>
       </div>
@@ -808,16 +1240,35 @@ function StepHeader({ category, step }) {
   );
 }
 
-function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile, removeFile, canContinue, onCancel, onSubmit }) {
+function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile, removeFile, canContinue, onCancel, onSubmit, onSupport }) {
   const isLast = step === STEP_TITLES.length - 1;
   const questions = CATEGORY_QUESTIONS[category.id] || [];
 
-  return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
-      <StepHeader category={category} step={step} />
+  useEffect(() => {
+    if (step === 5 && !form.draftSummary) {
+      update("draftSummary", generateSummary(category, form, questions));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
-      {step === 0 && (
+  return (
+    <div className="relative">
+      <div className={`pointer-events-none absolute -top-10 -right-16 w-64 h-64 ${category.color.fill} opacity-[0.07] rounded-full blur-3xl`} />
+      <div className={`pointer-events-none absolute -bottom-10 -left-16 w-64 h-64 ${category.color.fill} opacity-[0.06] rounded-full blur-3xl`} />
+      <div className={`relative bg-gradient-to-b ${category.color.from} to-white border border-slate-200/70 rounded-2xl shadow-sm overflow-hidden`}>
+        <div className={`h-1.5 ${category.color.fill}`} />
+        <div className="p-6">
+          <StepHeader category={category} step={step} />
+
+          {step === 0 && (
         <div>
+          <div className="flex items-start gap-2.5 bg-slate-50 border border-slate-200 rounded-2xl p-3.5 mb-5">
+            <Heart size={14} className="text-rose-500 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Whatever you choose here, you're protected from retaliation for reporting in good faith.{" "}
+              <button onClick={onSupport} className="font-semibold text-slate-700 hover:text-teal-700 underline underline-offset-2">Need support?</button>
+            </p>
+          </div>
           <Field label="How would you like to submit this?" required>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
@@ -881,6 +1332,18 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
         <div>
           <Field label="Who else was involved or affected?" help="Names optional if you're anonymous — roles are fine">
             <textarea rows={3} className={inputCls} value={form.othersInvolved} onChange={(e) => update("othersInvolved", e.target.value)} />
+          </Field>
+          <Field label="What is your relationship to the person(s) involved?" help="Helps the investigating team understand context">
+            <select className={inputCls} value={form.relationshipToInvolved} onChange={(e) => update("relationshipToInvolved", e.target.value)}>
+              <option value="">Select one</option>
+              <option>My manager</option>
+              <option>A peer or colleague</option>
+              <option>My direct report</option>
+              <option>Someone in another team</option>
+              <option>An external party (vendor, client, contractor)</option>
+              <option>Other</option>
+              <option>Prefer not to say</option>
+            </select>
           </Field>
           <Field label="Were there any witnesses?">
             <textarea rows={2} className={inputCls} value={form.witnesses} onChange={(e) => update("witnesses", e.target.value)} />
@@ -988,10 +1451,32 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
 
       {step === 5 && (
         <div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Sparkles size={14} className="text-indigo-500" />
+                <span className="text-sm font-semibold text-slate-900">AI-drafted summary</span>
+              </div>
+              <button
+                onClick={() => update("draftSummary", generateSummary(category, form, questions))}
+                className="text-xs font-semibold text-teal-700 hover:text-teal-800 flex items-center gap-1"
+              >
+                <Sparkles size={11} /> Regenerate
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 mb-2">Drafted from your answers — this is what the investigating team will see first. Edit anything that isn't quite right.</p>
+            <textarea
+              rows={7}
+              className={inputCls}
+              value={form.draftSummary}
+              onChange={(e) => update("draftSummary", e.target.value)}
+            />
+          </div>
+
           <ReviewRow label="Category" value={category.label} />
           <ReviewRow label="Submitting as" value={form.disclosureType === "named" ? `${form.employeeName} (named)` : "Anonymous"} />
-          <ReviewRow label="Summary" value={form.summary || "—"} />
           <ReviewRow label="Ongoing" value={form.isOngoing || "—"} />
+          <ReviewRow label="Relationship to those involved" value={form.relationshipToInvolved || "—"} />
           {questions.map((q) => form[q.id] ? <ReviewRow key={q.id} label={q.label} value={form[q.id]} /> : null)}
           <ReviewRow label="Urgency" value={form.urgency || "—"} />
           <ReviewRow label="Attachments" value={form.attachments.length ? form.attachments.join(", ") : "None"} />
@@ -1028,6 +1513,8 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           </button>
         )}
       </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1041,12 +1528,12 @@ function ReviewRow({ label, value }) {
   );
 }
 
-function Confirmation({ caseId, category, disclosureType, onDone }) {
+function Confirmation({ caseId, category, disclosureType, onDone, onSupport }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-8 text-center">
       <SuccessGraphic />
-      <h2 className="text-lg font-semibold text-slate-900 mb-1">Concern submitted</h2>
+      <h2 className="text-lg font-bold text-slate-900 mb-1">Thank you for speaking up</h2>
       <p className="text-sm text-slate-600 mb-5">
         Routed to <span className="font-medium text-slate-800">{category.team}</span>
       </p>
@@ -1057,12 +1544,19 @@ function Confirmation({ caseId, category, disclosureType, onDone }) {
         </button>
       </div>
       {copied && <p className="text-xs text-teal-700 -mt-3 mb-4">Copied</p>}
-      <p className="text-xs text-slate-500 mb-6 max-w-sm mx-auto">
+      <p className="text-xs text-slate-500 mb-4 max-w-sm mx-auto">
         {disclosureType === "anonymous"
           ? "Save this case ID — it's the only way to check your status, since no identifying information was stored."
           : "You'll be notified directly as your case is reviewed. You can also check status anytime with this case ID."}
       </p>
-      <button onClick={onDone} className="text-sm text-teal-700 hover:text-teal-800 font-medium">Back to home</button>
+      <div className="bg-rose-50 border border-rose-100 rounded-2xl p-3.5 mb-6 text-left flex items-start gap-2.5 max-w-sm mx-auto">
+        <Heart size={14} className="text-rose-500 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-rose-800 leading-relaxed">
+          Retaliation for reporting in good faith is against policy, regardless of outcome.{" "}
+          <button onClick={onSupport} className="font-semibold underline underline-offset-2">Support resources are here if you need them.</button>
+        </p>
+      </div>
+      <button onClick={onDone} className="text-sm text-teal-700 hover:text-teal-800 font-semibold">Back to home</button>
     </div>
   );
 }
@@ -1073,7 +1567,10 @@ function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> Back
       </button>
-      <h2 className="text-lg font-medium text-slate-900 mb-1">Track a case</h2>
+      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
+        <Search size={20} />
+      </div>
+      <h2 className="text-lg font-semibold text-slate-900 mb-1">Track a case</h2>
       <p className="text-sm text-slate-600 mb-5">Enter your case ID. No login required.</p>
       <div className="flex gap-2 mb-5">
         <input
@@ -1106,36 +1603,59 @@ function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
 function HrLogin({ onLogin, onBack }) {
   const [name, setName] = useState("");
   return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
+    <div>
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> Back
       </button>
-      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
-        <BarChart3 size={20} />
+      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-lg border border-slate-200/70">
+        <div className="relative bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 p-10 flex flex-col justify-center overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.12]"
+            style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+          />
+          <div className="pointer-events-none absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl" />
+          <div className="relative">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 text-teal-300 flex items-center justify-center mb-5">
+              <BarChart3 size={22} />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">HR Leadership</h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Aggregate trends across every team — volume, status, and investigation outcomes. No individual case
+              details or reporter identities are ever shown here, named or anonymous.
+            </p>
+          </div>
+        </div>
+        <div className="bg-white p-8 sm:p-10 flex flex-col justify-center">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Simulated SSO</p>
+          <h3 className="text-lg font-semibold text-slate-900 mb-6">Sign in to continue</h3>
+
+          <Field label="Your name" required>
+            <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Morgan Reyes" />
+          </Field>
+
+          <button
+            disabled={!name}
+            onClick={() => onLogin(name)}
+            className={`w-full mt-2 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${name ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+          >
+            View analytics
+          </button>
+          <p className="text-[11px] text-slate-400 mt-4 text-center">Prototype only — a real deployment would restrict this to a leadership role via SSO.</p>
+        </div>
       </div>
-      <h2 className="text-lg font-medium text-slate-900 mb-1">HR leadership sign-in</h2>
-      <p className="text-sm text-slate-600 mb-6">Simulated SSO — see aggregate trends across every team. No individual case details or reporter identities are shown here.</p>
-
-      <Field label="Your name" required>
-        <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Morgan Reyes" />
-      </Field>
-
-      <button
-        disabled={!name}
-        onClick={() => onLogin(name)}
-        className={`w-full mt-2 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${name ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
-      >
-        View analytics
-      </button>
-      <p className="text-[11px] text-slate-400 mt-4 text-center">Prototype only — a real deployment would restrict this to a leadership role via SSO.</p>
     </div>
   );
 }
 
-function StatCard({ label, value, sub }) {
+function StatCard({ label, value, sub, icon: Icon, bg, text }) {
   return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-4">
-      <div className="text-2xl font-semibold text-slate-900">{value}</div>
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5">
+      {Icon && (
+        <div className={`w-9 h-9 rounded-xl ${bg} ${text} flex items-center justify-center mb-3`}>
+          <Icon size={17} />
+        </div>
+      )}
+      <div className="text-2xl font-bold text-slate-900">{value}</div>
       <div className="text-xs text-slate-500 mt-0.5">{label}</div>
       {sub && <div className="text-[11px] text-slate-400 mt-1">{sub}</div>}
     </div>
@@ -1179,14 +1699,14 @@ function Analytics({ cases }) {
 
   return (
     <div>
-      <h1 className="text-xl font-medium text-slate-900 mb-1">Analytics</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">Analytics</h1>
       <p className="text-sm text-slate-600 mb-6">Aggregate trends across all teams — {total} case{total !== 1 ? "s" : ""} tracked this session.</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <StatCard label="Total cases" value={total} />
-        <StatCard label="Open" value={openCount} />
-        <StatCard label="Resolved / Closed" value={closedCount} />
-        <StatCard label="Anonymous" value={`${anonymousPct}%`} sub={`${anonymousCount} of ${total}`} />
+        <StatCard label="Total cases" value={total} icon={FileText} bg="bg-slate-100" text="text-slate-600" />
+        <StatCard label="Open" value={openCount} icon={Clock} bg="bg-amber-50" text="text-amber-600" />
+        <StatCard label="Resolved / Closed" value={closedCount} icon={Check} bg="bg-teal-50" text="text-teal-600" />
+        <StatCard label="Anonymous" value={`${anonymousPct}%`} sub={`${anonymousCount} of ${total}`} icon={Lock} bg="bg-indigo-50" text="text-indigo-600" />
       </div>
 
       <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 mb-4">
@@ -1233,38 +1753,55 @@ function InvestigatorLogin({ onLogin, onBack }) {
   const [team, setTeam] = useState("");
   const [name, setName] = useState("");
   return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
+    <div>
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> Back
       </button>
-      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
-        <ClipboardList size={20} />
+      <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-lg border border-slate-200/70">
+        <div className="relative bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 p-10 flex flex-col justify-center overflow-hidden">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.12]"
+            style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }}
+          />
+          <div className="pointer-events-none absolute -bottom-10 -right-10 w-48 h-48 bg-teal-500/20 rounded-full blur-3xl" />
+          <div className="relative">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 text-teal-300 flex items-center justify-center mb-5">
+              <ClipboardList size={22} />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Investigator Portal</h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Review cases routed to your team, log structured investigations, and track resolution — scoped so you only
+              ever see what belongs to your category.
+            </p>
+          </div>
+        </div>
+        <div className="bg-white p-8 sm:p-10 flex flex-col justify-center">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Simulated SSO</p>
+          <h3 className="text-lg font-semibold text-slate-900 mb-6">Sign in to continue</h3>
+
+          <Field label="Your name" required>
+            <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Sharma" />
+          </Field>
+          <Field label="Your team" required>
+            <select className={inputCls} value={team} onChange={(e) => setTeam(e.target.value)}>
+              <option value="">Select your team</option>
+              {TEAMS.map((t) => <option key={t}>{t}</option>)}
+            </select>
+          </Field>
+
+          <button
+            disabled={!team || !name}
+            onClick={() => onLogin(team, name)}
+            className={`w-full mt-2 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${team && name ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+          >
+            Sign in
+          </button>
+          <p className="text-[11px] text-slate-400 mt-4 text-center">Prototype only — a real deployment would use company SSO with role-based scoping.</p>
+        </div>
       </div>
-      <h2 className="text-lg font-medium text-slate-900 mb-1">Investigator sign-in</h2>
-      <p className="text-sm text-slate-600 mb-6">Simulated SSO — pick your team to see only cases routed to it.</p>
-
-      <Field label="Your name" required>
-        <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Priya Sharma" />
-      </Field>
-      <Field label="Your team" required>
-        <select className={inputCls} value={team} onChange={(e) => setTeam(e.target.value)}>
-          <option value="">Select your team</option>
-          {TEAMS.map((t) => <option key={t}>{t}</option>)}
-        </select>
-      </Field>
-
-      <button
-        disabled={!team || !name}
-        onClick={() => onLogin(team, name)}
-        className={`w-full mt-2 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${team && name ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
-      >
-        Sign in
-      </button>
-      <p className="text-[11px] text-slate-400 mt-4 text-center">Prototype only — real deployment would use company SSO with role-based scoping.</p>
     </div>
   );
 }
-
 function InvestigatorDashboard({ cases, onOpen, onReset }) {
   const sorted = [...cases].sort((a, b) => (URGENCY_RANK[a.urgency] ?? 9) - (URGENCY_RANK[b.urgency] ?? 9));
   const openCount = cases.filter((c) => c.status !== "Closed" && c.status !== "Resolved").length;
@@ -1341,7 +1878,7 @@ function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation
         <span className="font-mono text-sm text-slate-600">{c.id}</span>
         <span className={`text-[11px] px-2 py-0.5 rounded-full ${URGENCY_STYLES[c.urgency] || "bg-slate-100 text-slate-700"}`}>{c.urgency}</span>
       </div>
-      <h1 className="text-xl font-medium text-slate-900 mb-1">{c.categoryLabel}</h1>
+      <h1 className="text-2xl font-bold text-slate-900 mb-1">{c.categoryLabel}</h1>
       <p className="text-sm text-slate-600 mb-5">
         Reported by {c.disclosureType === "named" ? `${c.employeeName} (${c.employeeId})` : "Anonymous"} · Submitted {c.submittedAt}
       </p>
@@ -1367,7 +1904,16 @@ function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation
       </DetailSection>
 
       <DetailSection title="What happened" icon={FileText}>
-        <ReviewRow label="Summary" value={c.summary || "—"} />
+        {c.draftSummary && (
+          <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3.5 mb-3">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Sparkles size={12} className="text-indigo-500" />
+              <span className="text-xs font-semibold text-indigo-900">AI-drafted summary (reviewed by reporter)</span>
+            </div>
+            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{c.draftSummary}</p>
+          </div>
+        )}
+        <ReviewRow label="Raw description" value={c.summary || "—"} />
         <ReviewRow label="Occurred" value={c.occurredDate || "—"} />
         <ReviewRow label="Ongoing" value={c.isOngoing || "—"} />
         <ReviewRow label="Location" value={c.location || "—"} />
@@ -1375,6 +1921,7 @@ function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation
 
       <DetailSection title="People & evidence" icon={Users}>
         <ReviewRow label="Others involved" value={c.othersInvolved || "—"} />
+        <ReviewRow label="Relationship to those involved" value={c.relationshipToInvolved || "—"} />
         <ReviewRow label="Witnesses" value={c.witnesses || "—"} />
         <ReviewRow label="Prior report" value={c.priorReport || "—"} />
         <ReviewRow label="Attachments" value={c.attachments?.length ? c.attachments.join(", ") : "None"} />
