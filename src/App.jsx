@@ -6,16 +6,16 @@ import {
 } from "lucide-react";
 
 const CATEGORIES = [
-  { id: "employee_relations", label: "Employee relations", desc: "Harassment, discrimination, retaliation, workplace conflict", icon: Users, team: "HR – Employee Relations" },
-  { id: "facilities", label: "Facilities", desc: "Building conditions, maintenance, workplace safety", icon: Building2, team: "Facilities Management" },
-  { id: "real_estate", label: "Real estate", desc: "Leases, space planning, site issues", icon: Home, team: "Real Estate / Corporate Services" },
-  { id: "compliance", label: "Compliance", desc: "Regulatory or legal policy violations", icon: ShieldCheck, team: "Compliance" },
-  { id: "financial_fraud", label: "Financial fraud", desc: "Embezzlement, falsified records, theft", icon: AlertTriangle, team: "Internal Audit / Finance Investigations" },
-  { id: "ethics", label: "Ethics", desc: "Conflicts of interest, bribery, pressure to act against judgment", icon: Scale, team: "Ethics & Compliance Officer" },
-  { id: "code_of_conduct", label: "Code of conduct", desc: "Specific documented policy violations", icon: ClipboardCheck, team: "Compliance" },
+  { id: "employee_relations", label: "Employee relations", desc: "Harassment, discrimination, retaliation, workplace conflict", icon: Users, team: "HR – Employee Relations", color: { bg: "bg-indigo-50", text: "text-indigo-600", ring: "border-indigo-500", fill: "bg-indigo-500" } },
+  { id: "facilities", label: "Facilities", desc: "Building conditions, maintenance, workplace safety", icon: Building2, team: "Facilities Management", color: { bg: "bg-amber-50", text: "text-amber-600", ring: "border-amber-500", fill: "bg-amber-500" } },
+  { id: "real_estate", label: "Real estate", desc: "Leases, space planning, site issues", icon: Home, team: "Real Estate / Corporate Services", color: { bg: "bg-cyan-50", text: "text-cyan-600", ring: "border-cyan-500", fill: "bg-cyan-500" } },
+  { id: "compliance", label: "Compliance", desc: "Regulatory or legal policy violations", icon: ShieldCheck, team: "Compliance", color: { bg: "bg-blue-50", text: "text-blue-600", ring: "border-blue-500", fill: "bg-blue-500" } },
+  { id: "financial_fraud", label: "Financial fraud", desc: "Embezzlement, falsified records, theft", icon: AlertTriangle, team: "Internal Audit / Finance Investigations", color: { bg: "bg-rose-50", text: "text-rose-600", ring: "border-rose-500", fill: "bg-rose-500" } },
+  { id: "ethics", label: "Ethics", desc: "Conflicts of interest, bribery, pressure to act against judgment", icon: Scale, team: "Ethics & Compliance Officer", color: { bg: "bg-violet-50", text: "text-violet-600", ring: "border-violet-500", fill: "bg-violet-500" } },
+  { id: "code_of_conduct", label: "Code of conduct", desc: "Specific documented policy violations", icon: ClipboardCheck, team: "Compliance", color: { bg: "bg-emerald-50", text: "text-emerald-600", ring: "border-emerald-500", fill: "bg-emerald-500" } },
 ];
 
-const UNSURE_CATEGORY = { id: "unsure", label: "Not sure which category?", desc: "Describe your concern and Trust AI will help route it.", icon: Search, team: "Intake & Triage Team" };
+const UNSURE_CATEGORY = { id: "unsure", label: "Not sure which category?", desc: "Describe your concern and Trust AI will help route it.", icon: Search, team: "Intake & Triage Team", color: { bg: "bg-slate-100", text: "text-slate-600", ring: "border-slate-400", fill: "bg-slate-400" } };
 
 const TEAMS = [...new Set(CATEGORIES.map((c) => c.team))];
 
@@ -228,11 +228,54 @@ function Field({ label, required, help, children }) {
   );
 }
 
-const inputCls = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-teal-600";
+const inputCls = "w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 transition-all";
+
+function HeroGraphic() {
+  return (
+    <svg viewBox="0 0 200 200" className="w-32 h-32 mx-auto mb-5" fill="none">
+      <defs>
+        <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#0d9488" />
+          <stop offset="100%" stopColor="#4f46e5" />
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="72" fill="url(#heroGrad)" opacity="0.10" />
+      <circle cx="100" cy="100" r="52" fill="url(#heroGrad)" opacity="0.16" />
+      <path d="M100 44l40 15v33c0 26-17 49-40 57-23-8-40-31-40-57V59l40-15z" fill="url(#heroGrad)" />
+      <path d="M82 101l13 13 24-26" stroke="white" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <circle cx="38" cy="58" r="5.5" fill="#4f46e5" className="animate-pulse" />
+      <circle cx="167" cy="68" r="4.5" fill="#0d9488" className="animate-pulse" />
+      <circle cx="158" cy="152" r="6" fill="#4f46e5" opacity="0.7" />
+      <circle cx="30" cy="140" r="4" fill="#0d9488" opacity="0.6" />
+      <line x1="58" y1="63" x2="83" y2="76" stroke="#94a3b8" strokeWidth="1.4" strokeDasharray="3 4" />
+      <line x1="152" y1="82" x2="122" y2="92" stroke="#94a3b8" strokeWidth="1.4" strokeDasharray="3 4" />
+    </svg>
+  );
+}
+
+function SuccessGraphic() {
+  return (
+    <svg viewBox="0 0 120 120" className="w-16 h-16 mx-auto mb-4" fill="none">
+      <circle cx="60" cy="60" r="38" fill="url(#heroGrad2)" opacity="0.12" />
+      <circle cx="60" cy="60" r="27" fill="url(#heroGrad2)" />
+      <defs>
+        <linearGradient id="heroGrad2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#0d9488" />
+          <stop offset="100%" stopColor="#4f46e5" />
+        </linearGradient>
+      </defs>
+      <path d="M48 61l9 9 17-19" stroke="white" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <circle cx="18" cy="28" r="4" fill="#4f46e5" />
+      <circle cx="101" cy="34" r="3" fill="#0d9488" />
+      <circle cx="97" cy="96" r="5" fill="#4f46e5" opacity="0.6" />
+      <circle cx="13" cy="90" r="3" fill="#0d9488" opacity="0.6" />
+    </svg>
+  );
+}
 
 function Logo() {
   return (
-    <div className="rounded-lg bg-teal-600 text-white flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
+    <div className="rounded-2xl bg-teal-600 text-white flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
       <ShieldCheck size={18} />
     </div>
   );
@@ -424,8 +467,8 @@ export default function TrustAIApp() {
   const activeCase = cases.find((c) => c.id === activeCaseId);
 
   return (
-    <div className="w-full min-h-[560px] bg-slate-50 text-slate-800">
-      <div className="max-w-2xl mx-auto px-5 py-8">
+    <div className="w-full min-h-[560px] bg-gradient-to-b from-teal-50/50 via-slate-50 to-slate-50 text-slate-800">
+      <div className="max-w-2xl mx-auto px-5 py-10">
         {!isInvestigatorView && !isHrView && (
           <TopBar onHome={goHome} onTrack={goTrack} showTrack={view !== "landing"} />
         )}
@@ -496,46 +539,58 @@ export default function TrustAIApp() {
 
 function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
   const features = [
-    { icon: Lock, title: "Anonymous by design", desc: "Disclose your identity or stay fully anonymous — the choice is always yours, and anonymous cases never store identifying data." },
-    { icon: Sparkles, title: "AI-assisted routing", desc: "Not sure where a concern belongs? Describe it in your own words and Trust AI suggests the right category." },
-    { icon: ShieldCheck, title: "Seven dedicated channels", desc: "Employee relations, facilities, real estate, compliance, financial fraud, ethics, and code of conduct." },
-    { icon: Search, title: "Full visibility", desc: "Track any case status anytime with just a case ID — no login required, even for anonymous reports." },
+    { icon: Lock, title: "Anonymous by design", desc: "Disclose your identity or stay fully anonymous — the choice is always yours, and anonymous cases never store identifying data.", bg: "bg-teal-50", text: "text-teal-600" },
+    { icon: Sparkles, title: "AI-assisted routing", desc: "Describe your concern in your own words and Trust AI suggests which team it belongs to, with a confidence score.", bg: "bg-violet-50", text: "text-violet-600" },
+    { icon: ShieldCheck, title: "Seven dedicated channels", desc: "Employee relations, facilities, real estate, compliance, financial fraud, ethics, and code of conduct.", bg: "bg-blue-50", text: "text-blue-600" },
+    { icon: Search, title: "Full visibility", desc: "Track any case status anytime with just a case ID — no login required, even for anonymous reports.", bg: "bg-amber-50", text: "text-amber-600" },
   ];
 
   return (
     <div>
-      <div className="text-center py-6 mb-8">
-        <div className="inline-flex items-center gap-1.5 bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full mb-4">
-          <Sparkles size={12} /> AI-assisted intake & routing
-        </div>
-        <h1 className="text-3xl font-semibold text-slate-900 mb-3 tracking-tight">Speak up, safely.</h1>
-        <p className="text-sm text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
-          Trust AI gives every employee a single, confidential channel to raise concerns — from workplace conflicts
-          to compliance and fraud — with AI-assisted routing to the right team.
-        </p>
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={onStart} className="flex items-center gap-1.5 bg-teal-600 text-white text-sm font-medium px-5 py-2.5 rounded-md hover:bg-teal-700">
-            Report a concern <ArrowRight size={15} />
-          </button>
-          <button onClick={onTrack} className="text-sm font-medium text-slate-700 border border-slate-300 px-5 py-2.5 rounded-md hover:bg-slate-100">
-            Track a case
-          </button>
+      <div className="relative text-center py-8 mb-8 overflow-hidden">
+        <div className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 bg-teal-200/40 rounded-full blur-3xl" />
+        <div className="pointer-events-none absolute -top-6 -left-16 w-56 h-56 bg-indigo-200/35 rounded-full blur-3xl" />
+
+        <div className="relative">
+          <HeroGraphic />
+          <div className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur border border-teal-200 text-teal-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4 shadow-sm">
+            <Sparkles size={12} /> AI-assisted intake & routing
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
+            Speak up,<br />
+            <span className="bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent">safely.</span>
+          </h1>
+          <p className="text-sm font-bold uppercase tracking-wide bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+            10x easier to report · 10x faster to resolve
+          </p>
+          <p className="text-[15px] text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
+            Trust AI gives every employee a single, confidential channel to raise concerns — from workplace conflicts
+            to compliance and fraud — with AI-assisted routing to the right team.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <button onClick={onStart} className="flex items-center gap-1.5 bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-semibold px-6 py-3 rounded-xl shadow-md shadow-teal-600/20 hover:shadow-lg hover:shadow-teal-600/30 hover:-translate-y-0.5 transition-all">
+              Report a concern <ArrowRight size={15} />
+            </button>
+            <button onClick={onTrack} className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 px-6 py-3 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+              Track a case
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
         {features.map((f) => (
-          <div key={f.title} className="bg-white border border-slate-200 rounded-lg p-4">
-            <div className="w-9 h-9 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-3">
-              <f.icon size={18} />
+          <div key={f.title} className="bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5">
+            <div className={`w-10 h-10 rounded-xl ${f.bg} ${f.text} flex items-center justify-center mb-3`}>
+              <f.icon size={19} />
             </div>
-            <div className="text-sm font-medium text-slate-900 mb-1">{f.title}</div>
+            <div className="text-sm font-semibold text-slate-900 mb-1.5">{f.title}</div>
             <div className="text-xs text-slate-500 leading-relaxed">{f.desc}</div>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-xs text-slate-400 mb-4">
+      <div className="flex items-center justify-center gap-4 text-xs text-slate-400 mb-5">
         <span>7 categories</span>
         <span className="w-1 h-1 rounded-full bg-slate-300" />
         <span>100% anonymous option</span>
@@ -544,10 +599,10 @@ function Landing({ onStart, onTrack, onInvestigator, onHrLeadership }) {
       </div>
 
       <div className="text-center border-t border-slate-200 pt-5">
-        <button onClick={onInvestigator} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto mb-2">
+        <button onClick={onInvestigator} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto mb-2 transition-colors">
           <ClipboardList size={14} /> Are you on an investigation team? Investigator sign-in
         </button>
-        <button onClick={onHrLeadership} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto">
+        <button onClick={onHrLeadership} className="text-sm text-slate-600 hover:text-teal-700 flex items-center gap-1.5 mx-auto transition-colors">
           <BarChart3 size={14} /> HR leadership — view aggregate analytics
         </button>
       </div>
@@ -569,10 +624,10 @@ function DescribeConcern({ onSelect, onManual, onBack }) {
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
         <ArrowLeft size={14} /> Back
       </button>
-      <div className="inline-flex items-center gap-1.5 bg-teal-50 text-teal-700 text-xs font-medium px-3 py-1 rounded-full mb-4">
+      <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-100 text-teal-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
         <Sparkles size={12} /> AI-assisted routing
       </div>
-      <h1 className="text-xl font-medium text-slate-900 mb-1">What would you like to report?</h1>
+      <h1 className="text-xl font-semibold text-slate-900 mb-1">What would you like to report?</h1>
       <p className="text-sm text-slate-600 mb-5">Describe what happened in your own words. Trust AI will suggest which team it likely belongs to — you'll always confirm before it's submitted.</p>
 
       <textarea
@@ -585,7 +640,7 @@ function DescribeConcern({ onSelect, onManual, onBack }) {
       <button
         disabled={description.trim().length < 10}
         onClick={analyze}
-        className={`mt-3 flex items-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-md ${description.trim().length >= 10 ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+        className={`mt-3 flex items-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-xl ${description.trim().length >= 10 ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
       >
         <Sparkles size={14} /> Analyze with AI
       </button>
@@ -596,7 +651,7 @@ function DescribeConcern({ onSelect, onManual, onBack }) {
       {matches !== null && (
         <div className="mt-6">
           {matches.length === 0 ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-md p-4 mb-4">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4">
               <p className="text-sm text-slate-600">No confident match found — that's alright. You can choose a category yourself, or send it straight to our intake team to route.</p>
             </div>
           ) : (
@@ -604,18 +659,20 @@ function DescribeConcern({ onSelect, onManual, onBack }) {
               <p className="text-sm font-medium text-slate-700 mb-3">This looks like it may belong to:</p>
               <div className="flex flex-col gap-2 mb-4">
                 {matches.map((m, i) => (
-                  <div key={m.category.id} className={`border rounded-lg p-4 ${i === 0 ? "border-teal-600 bg-teal-50" : "border-slate-200 bg-white"}`}>
+                  <div key={m.category.id} className={`border rounded-2xl p-4 transition-all ${i === 0 ? `${m.category.color.ring} ${m.category.color.bg} shadow-sm` : "border-slate-200 bg-white"}`}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <m.category.icon size={16} className={i === 0 ? "text-teal-700" : "text-slate-500"} />
-                        <span className="text-sm font-medium text-slate-900">{m.category.label}</span>
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${i === 0 ? "bg-white/70" : m.category.color.bg}`}>
+                          <m.category.icon size={15} className={m.category.color.text} />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-900">{m.category.label}</span>
                       </div>
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${i === 0 ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600"}`}>{m.confidence}% match</span>
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${i === 0 ? `${m.category.color.fill} text-white` : "bg-slate-100 text-slate-600"}`}>{m.confidence}% match</span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
-                      <div className={`h-full rounded-full ${i === 0 ? "bg-teal-600" : "bg-slate-400"}`} style={{ width: `${m.confidence}%` }} />
+                    <div className="w-full h-1.5 bg-slate-200/60 rounded-full overflow-hidden mb-3">
+                      <div className={`h-full rounded-full ${m.category.color.fill}`} style={{ width: `${m.confidence}%` }} />
                     </div>
-                    <button onClick={() => onSelect(m.category, description)} className={`text-sm font-medium px-4 py-1.5 rounded-md ${i === 0 ? "bg-teal-600 text-white hover:bg-teal-700" : "border border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
+                    <button onClick={() => onSelect(m.category, description)} className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all ${i === 0 ? `${m.category.color.fill} text-white shadow-sm hover:shadow-md hover:brightness-95` : "border border-slate-300 text-slate-700 hover:bg-slate-50"}`}>
                       Select {m.category.label} & continue
                     </button>
                   </div>
@@ -624,17 +681,17 @@ function DescribeConcern({ onSelect, onManual, onBack }) {
             </>
           )}
           <div className="flex flex-col sm:flex-row gap-2">
-            <button onClick={onManual} className="text-sm text-slate-600 hover:text-teal-700 border border-slate-300 rounded-md px-4 py-2 flex-1 text-center">
+            <button onClick={onManual} className="text-sm text-slate-600 hover:text-teal-700 border border-slate-300 rounded-xl px-4 py-2 flex-1 text-center">
               Choose a category myself
             </button>
-            <button onClick={() => onSelect(UNSURE_CATEGORY, description)} className="text-sm text-slate-600 hover:text-teal-700 border border-slate-300 rounded-md px-4 py-2 flex-1 text-center">
+            <button onClick={() => onSelect(UNSURE_CATEGORY, description)} className="text-sm text-slate-600 hover:text-teal-700 border border-slate-300 rounded-xl px-4 py-2 flex-1 text-center">
               Send straight to intake team
             </button>
           </div>
         </div>
       )}
 
-      <div className="mt-6 flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-md p-3">
+      <div className="mt-6 flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-xl p-3">
         <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-slate-600">
           This description is only used to suggest a category. Nothing is submitted until you review and confirm on the next screen.
@@ -662,12 +719,12 @@ function CategoryPicker({ onSelect, onBack }) {
             <button
               key={c.id}
               onClick={() => onSelect(c)}
-              className="text-left bg-white border border-slate-200 rounded-lg p-4 hover:border-teal-600 hover:shadow-sm transition-colors"
+              className={`text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 hover:${c.color.ring} transition-all`}
             >
-              <div className="w-9 h-9 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-3">
-                <Icon size={18} />
+              <div className={`w-10 h-10 rounded-xl ${c.color.bg} ${c.color.text} flex items-center justify-center mb-3`}>
+                <Icon size={19} />
               </div>
-              <div className="text-sm font-medium text-slate-900 mb-1">{c.label}</div>
+              <div className="text-sm font-semibold text-slate-900 mb-1">{c.label}</div>
               <div className="text-xs text-slate-500 leading-relaxed">{c.desc}</div>
             </button>
           );
@@ -676,9 +733,9 @@ function CategoryPicker({ onSelect, onBack }) {
 
       <button
         onClick={() => onSelect(UNSURE_CATEGORY)}
-        className="w-full text-left mt-3 bg-white border border-dashed border-slate-300 rounded-lg p-4 hover:border-teal-600 transition-colors flex items-center gap-3"
+        className="w-full text-left mt-3 bg-white border border-dashed border-slate-300 rounded-2xl p-4 hover:border-teal-600 transition-colors flex items-center gap-3"
       >
-        <div className="w-9 h-9 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
           <Sparkles size={18} />
         </div>
         <div>
@@ -687,7 +744,7 @@ function CategoryPicker({ onSelect, onBack }) {
         </div>
       </button>
 
-      <div className="mt-6 flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-md p-3">
+      <div className="mt-6 flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-xl p-3">
         <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-slate-600">
           Anonymous submissions never store your name, employee ID, or any identifying details. You'll get a case ID to check status.
@@ -699,19 +756,19 @@ function CategoryPicker({ onSelect, onBack }) {
 
 function StepHeader({ category, step }) {
   return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
+    <div className="mb-7">
+      <div className="flex items-center gap-1.5 mb-4">
         {STEP_TITLES.map((t, i) => (
-          <div key={t} className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${i < step ? "bg-teal-600 text-white" : i === step ? "bg-teal-100 text-teal-800 border border-teal-600" : "bg-slate-100 text-slate-400"}`}>
-              {i < step ? <Check size={11} /> : i + 1}
-            </div>
-            {i < STEP_TITLES.length - 1 && <div className="w-4 h-px bg-slate-300" />}
-          </div>
+          <div key={t} className={`h-1.5 flex-1 rounded-full transition-colors ${i <= step ? category.color.fill : "bg-slate-200"}`} />
         ))}
       </div>
-      <div className="text-xs text-teal-700 font-medium mb-1">{category.label}</div>
-      <h2 className="text-lg font-medium text-slate-900">{STEP_TITLES[step]}</h2>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className={`text-xs font-semibold mb-1 ${category.color.text}`}>{category.label}</div>
+          <h2 className="text-lg font-semibold text-slate-900">{STEP_TITLES[step]}</h2>
+        </div>
+        <div className="text-xs text-slate-400 font-medium">Step {step + 1} of {STEP_TITLES.length}</div>
+      </div>
     </div>
   );
 }
@@ -721,7 +778,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
   const questions = CATEGORY_QUESTIONS[category.id] || [];
 
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6">
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
       <StepHeader category={category} step={step} />
 
       {step === 0 && (
@@ -735,7 +792,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
                 <button
                   key={o.v}
                   onClick={() => update("disclosureType", o.v)}
-                  className={`text-left border rounded-lg p-4 transition-colors ${form.disclosureType === o.v ? "border-teal-600 bg-teal-50" : "border-slate-200 hover:border-slate-300"}`}
+                  className={`text-left border rounded-2xl p-4 transition-colors ${form.disclosureType === o.v ? "border-teal-600 bg-teal-50" : "border-slate-200 hover:border-slate-300"}`}
                 >
                   <o.Icon size={16} className={form.disclosureType === o.v ? "text-teal-700" : "text-slate-500"} />
                   <div className="text-sm font-medium text-slate-900 mt-2">{o.label}</div>
@@ -755,7 +812,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
             </>
           )}
           {form.disclosureType === "anonymous" && (
-            <div className="flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-md p-3">
+            <div className="flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
               <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-slate-600">Save your case ID at the end — it's the only way to check status anonymously.</p>
             </div>
@@ -774,7 +831,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <Field label="Is this an ongoing issue?" required>
             <div className="flex gap-2">
               {["Yes", "No"].map((o) => (
-                <button key={o} onClick={() => update("isOngoing", o)} className={`px-4 py-1.5 rounded-md text-sm border ${form.isOngoing === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
+                <button key={o} onClick={() => update("isOngoing", o)} className={`px-4 py-1.5 rounded-xl text-sm border ${form.isOngoing === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
               ))}
             </div>
           </Field>
@@ -796,7 +853,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <Field label="Has this been reported to anyone else already?" required>
             <div className="flex gap-2 mb-2">
               {["Yes", "No"].map((o) => (
-                <button key={o} onClick={() => update("priorReport", o)} className={`px-4 py-1.5 rounded-md text-sm border ${form.priorReport === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
+                <button key={o} onClick={() => update("priorReport", o)} className={`px-4 py-1.5 rounded-xl text-sm border ${form.priorReport === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
               ))}
             </div>
             {form.priorReport === "Yes" && (
@@ -806,12 +863,12 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <Field label="Supporting documents" help="Emails, photos, or messages — mocked for this prototype">
             <div className="flex flex-wrap gap-2 mb-2">
               {form.attachments.map((a) => (
-                <span key={a} className="flex items-center gap-1 bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-md">
+                <span key={a} className="flex items-center gap-1 bg-slate-100 text-slate-700 text-xs px-2 py-1 rounded-xl">
                   {a}<button onClick={() => removeFile(a)}><X size={12} /></button>
                 </span>
               ))}
             </div>
-            <button onClick={addFile} className="flex items-center gap-1.5 text-sm text-teal-700 border border-dashed border-teal-300 rounded-md px-3 py-1.5 hover:bg-teal-50">
+            <button onClick={addFile} className="flex items-center gap-1.5 text-sm text-teal-700 border border-dashed border-teal-300 rounded-xl px-3 py-1.5 hover:bg-teal-50">
               <Upload size={14} /> Attach a file
             </button>
           </Field>
@@ -845,7 +902,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
                       <button
                         key={o}
                         onClick={() => update(q.id, o)}
-                        className={`px-4 py-1.5 rounded-md text-sm border ${form[q.id] === o ? (q.id === "safetyRisk" && o === "Yes" ? "bg-red-600 text-white border-red-600" : "bg-teal-600 text-white border-teal-600") : "border-slate-300 text-slate-600"}`}
+                        className={`px-4 py-1.5 rounded-xl text-sm border ${form[q.id] === o ? (q.id === "safetyRisk" && o === "Yes" ? "bg-red-600 text-white border-red-600" : "bg-teal-600 text-white border-teal-600") : "border-slate-300 text-slate-600"}`}
                       >
                         {o}
                       </button>
@@ -863,7 +920,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <Field label="How would you rate the urgency?" required>
             <div className="grid grid-cols-2 gap-2">
               {["low", "medium", "high", "immediate"].map((u) => (
-                <button key={u} onClick={() => update("urgency", u)} className={`px-3 py-1.5 rounded-md text-sm border capitalize ${form.urgency === u ? "border-teal-600 " + URGENCY_STYLES[u] : "border-slate-300 text-slate-600"}`}>
+                <button key={u} onClick={() => update("urgency", u)} className={`px-3 py-1.5 rounded-xl text-sm border capitalize ${form.urgency === u ? "border-teal-600 " + URGENCY_STYLES[u] : "border-slate-300 text-slate-600"}`}>
                   {u === "immediate" ? "Immediate safety risk" : u}
                 </button>
               ))}
@@ -886,7 +943,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
             <Field label="Would you be open to a follow-up conversation?">
               <div className="flex gap-2">
                 {["Yes", "No"].map((o) => (
-                  <button key={o} onClick={() => update("followUpConsent", o)} className={`px-4 py-1.5 rounded-md text-sm border ${form.followUpConsent === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
+                  <button key={o} onClick={() => update("followUpConsent", o)} className={`px-4 py-1.5 rounded-xl text-sm border ${form.followUpConsent === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
                 ))}
               </div>
             </Field>
@@ -904,7 +961,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <ReviewRow label="Urgency" value={form.urgency || "—"} />
           <ReviewRow label="Attachments" value={form.attachments.length ? form.attachments.join(", ") : "None"} />
           <ReviewRow label="Will route to" value={category.team} />
-          <div className="mt-4 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-md p-3">
+          <div className="mt-4 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
             <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-slate-600">
               {form.disclosureType === "anonymous"
@@ -923,14 +980,14 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <ArrowLeft size={14} /> {step === 0 ? "Cancel" : "Back"}
         </button>
         {isLast ? (
-          <button onClick={onSubmit} className="flex items-center gap-1.5 text-sm bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700">
+          <button onClick={onSubmit} className="flex items-center gap-1.5 text-sm font-semibold bg-teal-600 text-white px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:bg-teal-700 transition-all">
             Submit concern <Check size={14} />
           </button>
         ) : (
           <button
             disabled={!canContinue}
             onClick={() => setStep(step + 1)}
-            className={`flex items-center gap-1.5 text-sm px-4 py-2 rounded-md ${canContinue ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+            className={`flex items-center gap-1.5 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all ${canContinue ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
           >
             Continue <ArrowRight size={14} />
           </button>
@@ -952,15 +1009,13 @@ function ReviewRow({ label, value }) {
 function Confirmation({ caseId, category, disclosureType, onDone }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-8 text-center">
-      <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto mb-4">
-        <Check size={22} />
-      </div>
-      <h2 className="text-lg font-medium text-slate-900 mb-1">Concern submitted</h2>
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-8 text-center">
+      <SuccessGraphic />
+      <h2 className="text-lg font-semibold text-slate-900 mb-1">Concern submitted</h2>
       <p className="text-sm text-slate-600 mb-5">
         Routed to <span className="font-medium text-slate-800">{category.team}</span>
       </p>
-      <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-md px-4 py-2 mb-5">
+      <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 mb-5">
         <span className="font-mono text-sm text-slate-800">{caseId}</span>
         <button onClick={() => { navigator.clipboard.writeText(caseId); setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="text-slate-500 hover:text-teal-700">
           <Copy size={14} />
@@ -979,7 +1034,7 @@ function Confirmation({ caseId, category, disclosureType, onDone }) {
 
 function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6">
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> Back
       </button>
@@ -992,14 +1047,14 @@ function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
           value={trackInput}
           onChange={(e) => setTrackInput(e.target.value)}
         />
-        <button onClick={onLookup} className="bg-teal-600 text-white px-4 py-2 rounded-md text-sm hover:bg-teal-700 flex-shrink-0">Look up</button>
+        <button onClick={onLookup} className="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md hover:bg-teal-700 transition-all flex-shrink-0">Look up</button>
       </div>
 
       {trackResult === null && (
         <p className="text-sm text-slate-500">No case found for that ID in this session. In production this would query the case database.</p>
       )}
       {trackResult && (
-        <div className="border border-slate-200 rounded-md p-4">
+        <div className="border border-slate-200 rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="font-mono text-sm text-slate-800">{trackResult.id}</span>
             <span className={`text-xs px-2 py-0.5 rounded-full ${URGENCY_STYLES[trackResult.urgency] || "bg-slate-100 text-slate-700"}`}>{trackResult.urgency}</span>
@@ -1016,11 +1071,11 @@ function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
 function HrLogin({ onLogin, onBack }) {
   const [name, setName] = useState("");
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6">
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> Back
       </button>
-      <div className="w-10 h-10 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
+      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
         <BarChart3 size={20} />
       </div>
       <h2 className="text-lg font-medium text-slate-900 mb-1">HR leadership sign-in</h2>
@@ -1033,7 +1088,7 @@ function HrLogin({ onLogin, onBack }) {
       <button
         disabled={!name}
         onClick={() => onLogin(name)}
-        className={`w-full mt-2 text-sm font-medium px-4 py-2.5 rounded-md ${name ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+        className={`w-full mt-2 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${name ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
       >
         View analytics
       </button>
@@ -1044,7 +1099,7 @@ function HrLogin({ onLogin, onBack }) {
 
 function StatCard({ label, value, sub }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-4">
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-4">
       <div className="text-2xl font-semibold text-slate-900">{value}</div>
       <div className="text-xs text-slate-500 mt-0.5">{label}</div>
       {sub && <div className="text-[11px] text-slate-400 mt-1">{sub}</div>}
@@ -1099,7 +1154,7 @@ function Analytics({ cases }) {
         <StatCard label="Anonymous" value={`${anonymousPct}%`} sub={`${anonymousCount} of ${total}`} />
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-4">
+      <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 mb-4">
         <h3 className="text-sm font-semibold text-slate-900 mb-3">Cases by category</h3>
         {categoryCounts.length === 0 ? (
           <p className="text-sm text-slate-400">No cases yet.</p>
@@ -1109,17 +1164,17 @@ function Analytics({ cases }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="bg-white border border-slate-200 rounded-lg p-5">
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5">
           <h3 className="text-sm font-semibold text-slate-900 mb-3">Cases by status</h3>
           {statusCounts.map((s) => <BarRow key={s.label} label={s.label} count={s.count} total={total} colorClass="bg-slate-600" />)}
         </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-5">
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5">
           <h3 className="text-sm font-semibold text-slate-900 mb-3">Cases by urgency</h3>
           {urgencyCounts.map((u) => <BarRow key={u.label} label={u.label} count={u.count} total={total} colorClass={u.colorClass} />)}
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-lg p-5 mb-4">
+      <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 mb-4">
         <h3 className="text-sm font-semibold text-slate-900 mb-1">Investigation outcomes</h3>
         <p className="text-xs text-slate-500 mb-3">Based on {withOutcome.length} of {total} cases with a recorded outcome.</p>
         {withOutcome.length === 0 ? (
@@ -1129,7 +1184,7 @@ function Analytics({ cases }) {
         )}
       </div>
 
-      <div className="flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-md p-3">
+      <div className="flex items-start gap-2 bg-slate-100 border border-slate-200 rounded-xl p-3">
         <Lock size={14} className="text-slate-500 mt-0.5 flex-shrink-0" />
         <p className="text-xs text-slate-600">
           This view shows counts only — no case summaries, names, or reporter identities are ever surfaced here, anonymous or named.
@@ -1143,11 +1198,11 @@ function InvestigatorLogin({ onLogin, onBack }) {
   const [team, setTeam] = useState("");
   const [name, setName] = useState("");
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-6">
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> Back
       </button>
-      <div className="w-10 h-10 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
+      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
         <ClipboardList size={20} />
       </div>
       <h2 className="text-lg font-medium text-slate-900 mb-1">Investigator sign-in</h2>
@@ -1166,7 +1221,7 @@ function InvestigatorLogin({ onLogin, onBack }) {
       <button
         disabled={!team || !name}
         onClick={() => onLogin(team, name)}
-        className={`w-full mt-2 text-sm font-medium px-4 py-2.5 rounded-md ${team && name ? "bg-teal-600 text-white hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
+        className={`w-full mt-2 text-sm font-semibold px-4 py-3 rounded-xl transition-all ${team && name ? "bg-teal-600 text-white shadow-sm hover:shadow-md hover:bg-teal-700" : "bg-slate-200 text-slate-400 cursor-not-allowed"}`}
       >
         Sign in
       </button>
@@ -1190,14 +1245,14 @@ function InvestigatorDashboard({ cases, onOpen, onReset }) {
       </div>
 
       {sorted.length === 0 && (
-        <div className="bg-white border border-dashed border-slate-300 rounded-lg p-8 text-center text-sm text-slate-500">
+        <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-8 text-center text-sm text-slate-500">
           No cases yet for this team in this session. Submit a concern from the employee side matching this team to see it appear here.
         </div>
       )}
 
       <div className="flex flex-col gap-2">
         {sorted.map((c) => (
-          <button key={c.id} onClick={() => onOpen(c.id)} className="text-left bg-white border border-slate-200 rounded-lg p-4 hover:border-teal-600 transition-colors flex items-center justify-between gap-3">
+          <button key={c.id} onClick={() => onOpen(c.id)} className="text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm p-4 hover:border-teal-600 transition-colors flex items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-mono text-xs text-slate-500">{c.id}</span>
@@ -1217,7 +1272,7 @@ function InvestigatorDashboard({ cases, onOpen, onReset }) {
 
 function DetailSection({ title, icon: Icon, children }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-5 mb-4">
+    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 mb-4">
       <div className="flex items-center gap-2 mb-3">
         <Icon size={15} className="text-teal-700" />
         <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
@@ -1259,13 +1314,13 @@ function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation
       <DetailSection title="Status" icon={ClipboardList}>
         <div className="flex flex-wrap gap-2">
           {STATUS_FLOW.map((s) => (
-            <button key={s} onClick={() => onStatusChange(s)} className={`px-3 py-1.5 rounded-md text-xs font-medium border ${c.status === s ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
+            <button key={s} onClick={() => onStatusChange(s)} className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${c.status === s ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
               {s}
             </button>
           ))}
         </div>
         {(c.status === "Resolved" || c.status === "Closed") && (
-          <div className="mt-3 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-md p-3">
+          <div className="mt-3 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
             <Lock size={13} className="text-slate-500 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-slate-600">
               {c.disclosureType === "named"
@@ -1329,7 +1384,7 @@ function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation
           <textarea rows={2} className={inputCls} value={inv.internalComments} onChange={(e) => updateInv("internalComments", e.target.value)} />
         </Field>
         <div className="flex items-center gap-3 mt-2">
-          <button onClick={handleSave} className="bg-teal-600 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-teal-700">
+          <button onClick={handleSave} className="bg-teal-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:bg-teal-700 transition-all">
             Save investigation
           </button>
           {saved && <span className="text-xs text-teal-700">Saved</span>}
