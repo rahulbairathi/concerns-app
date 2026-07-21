@@ -311,7 +311,7 @@ function emptyInvestigation() {
 function Field({ label, required, help, children }) {
   return (
     <div className="mb-5">
-      <label className="block text-sm font-medium text-slate-700 mb-1">
+      <label className="block text-sm font-semibold text-slate-800 mb-1.5">
         {label}{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {help && <p className="text-xs text-slate-500 mb-2">{help}</p>}
@@ -626,7 +626,7 @@ export default function TrustAIApp() {
   const contentWidthCls = view === "landing" ? "" : WIDE_VIEWS.includes(view) ? "max-w-6xl mx-auto px-6 py-10" : "max-w-2xl mx-auto px-5 py-10";
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 text-slate-800">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-800">
       <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-6">
           {!isInvestigatorView && !isHrView && (
@@ -1014,6 +1014,23 @@ function CountrySelector({ country, setCountry, onChange }) {
   );
 }
 
+function ResourceHeader({ icon: Icon, title, desc, from, to, iconText }) {
+  return (
+    <div className={`relative bg-gradient-to-br ${from} ${to} rounded-3xl p-6 sm:p-7 mb-6 overflow-hidden`}>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.1]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+      <div className="relative flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 ${iconText} flex items-center justify-center flex-shrink-0`}>
+          <Icon size={22} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-white mb-1">{title}</h1>
+          <p className="text-sm text-slate-200 max-w-lg">{desc}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PolicyCorner({ onBack }) {
   const [country, setCountry] = useState("global");
   const [openIdx, setOpenIdx] = useState(null);
@@ -1026,36 +1043,36 @@ function PolicyCorner({ onBack }) {
         <ArrowLeft size={14} /> Back
       </button>
 
-      <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
-        <Globe size={20} />
-      </div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Policy corner</h1>
-      <p className="text-sm text-slate-600 mb-6">Policies vary by country. Select where you're based to see what applies to you.</p>
+      <ResourceHeader
+        icon={Globe} title="Policy corner"
+        desc="Policies vary by country. Select where you're based to see what applies to you."
+        from="from-slate-900" to="to-indigo-950" iconText="text-indigo-300"
+      />
 
       <CountrySelector country={country} setCountry={setCountry} onChange={() => setOpenIdx(null)} />
 
       <h2 className="text-sm font-semibold text-slate-900 mb-3 uppercase tracking-wide">Policies — {data.label}</h2>
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {allPolicies.map((p, i) => (
-          <div key={p.title} className="bg-white border border-slate-200/70 rounded-2xl shadow-sm overflow-hidden">
+          <div key={p.title} className={`bg-white border rounded-2xl shadow-sm overflow-hidden transition-all ${openIdx === i ? "border-indigo-300 shadow-md sm:col-span-2" : "border-slate-200/70 hover:shadow-md hover:-translate-y-0.5"}`}>
             <button
               onClick={() => setOpenIdx(openIdx === i ? null : i)}
-              className="w-full flex items-center justify-between gap-3 p-4 text-left hover:bg-slate-50 transition-colors"
+              className="w-full flex items-start justify-between gap-3 p-5 text-left"
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
-                  <FileText size={15} />
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <FileText size={18} />
                 </div>
-                <span className="text-sm font-semibold text-slate-900">{p.title}</span>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-slate-900 mb-1">{p.title}</div>
+                  <p className={`text-xs text-slate-500 leading-relaxed ${openIdx === i ? "" : "line-clamp-2"}`}>{p.desc}</p>
+                  {openIdx === i && (
+                    <p className="text-[11px] text-slate-400 mt-2 italic">Sample summary for this prototype — link to your intranet policy library in production.</p>
+                  )}
+                </div>
               </div>
-              <ChevronDown size={16} className={`text-slate-400 flex-shrink-0 transition-transform ${openIdx === i ? "rotate-180" : ""}`} />
+              <ChevronDown size={16} className={`text-slate-400 flex-shrink-0 mt-1 transition-transform ${openIdx === i ? "rotate-180" : ""}`} />
             </button>
-            {openIdx === i && (
-              <div className="px-4 pb-4 pl-[3.75rem]">
-                <p className="text-xs text-slate-600 leading-relaxed">{p.desc}</p>
-                <p className="text-[11px] text-slate-400 mt-2 italic">Sample summary for this prototype — link to your intranet policy library in production.</p>
-              </div>
-            )}
           </div>
         ))}
       </div>
@@ -1073,11 +1090,11 @@ function ReportingChannels({ onBack }) {
         <ArrowLeft size={14} /> Back
       </button>
 
-      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-4">
-        <Phone size={20} />
-      </div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Other ways to report</h1>
-      <p className="text-sm text-slate-600 mb-6">You don't have to use this app to raise a concern. These channels are staffed independently and work exactly the same way — including the option to stay anonymous.</p>
+      <ResourceHeader
+        icon={Phone} title="Other ways to report"
+        desc="You don't have to use this app to raise a concern. These channels are staffed independently — including the option to stay anonymous."
+        from="from-teal-700" to="to-teal-900" iconText="text-teal-200"
+      />
 
       <CountrySelector country={country} setCountry={setCountry} />
 
@@ -1119,11 +1136,11 @@ function WellbeingResources({ onBack, onSupport }) {
         <ArrowLeft size={14} /> Back
       </button>
 
-      <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
-        <Heart size={20} />
-      </div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Mental health & wellbeing</h1>
-      <p className="text-sm text-slate-600 mb-6">These resources are separate from Trust AI and from your employer's reporting system. Reaching out is confidential.</p>
+      <ResourceHeader
+        icon={Heart} title="Mental health & wellbeing"
+        desc="These resources are separate from Trust AI and from your employer's reporting system. Reaching out is confidential."
+        from="from-rose-600" to="to-rose-900" iconText="text-rose-100"
+      />
 
       <CountrySelector country={country} setCountry={setCountry} />
 
@@ -1165,16 +1182,26 @@ function WellbeingResources({ onBack, onSupport }) {
 
 function CategoryPicker({ onSelect, onBack }) {
   return (
-    <div>
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+    <div className="relative">
+      <div className="pointer-events-none absolute -top-10 right-0 w-72 h-72 bg-indigo-200/20 rounded-full blur-3xl" />
+      <button onClick={onBack} className="relative flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
         <ArrowLeft size={14} /> Back
       </button>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Raise a concern</h1>
-      <p className="text-sm text-slate-600 mb-6">
-        Choose the category that best fits your concern. You can share your name or stay anonymous.
-      </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="relative bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-7 sm:p-8 mb-6 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 opacity-[0.1]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+        <div className="relative flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 text-teal-300 flex items-center justify-center flex-shrink-0">
+            <ClipboardList size={22} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white mb-1">Raise a concern</h1>
+            <p className="text-sm text-slate-300">Choose the category that best fits your concern. You can share your name or stay anonymous.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {CATEGORIES.map((c) => {
           const Icon = c.icon;
           return (
@@ -1330,6 +1357,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
 
       {step === 2 && (
         <div>
+          <div className={`text-[11px] font-bold uppercase tracking-wide mb-3 ${category.color.text}`}>Who was involved</div>
           <Field label="Who else was involved or affected?" help="Names optional if you're anonymous — roles are fine">
             <textarea rows={3} className={inputCls} value={form.othersInvolved} onChange={(e) => update("othersInvolved", e.target.value)} />
           </Field>
@@ -1348,10 +1376,12 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
           <Field label="Were there any witnesses?">
             <textarea rows={2} className={inputCls} value={form.witnesses} onChange={(e) => update("witnesses", e.target.value)} />
           </Field>
+
+          <div className={`text-[11px] font-bold uppercase tracking-wide mb-3 mt-6 pt-5 border-t border-slate-100 ${category.color.text}`}>Prior reports & evidence</div>
           <Field label="Has this been reported to anyone else already?" required>
             <div className="flex gap-2 mb-2">
               {["Yes", "No"].map((o) => (
-                <button key={o} onClick={() => update("priorReport", o)} className={`px-4 py-1.5 rounded-xl text-sm border ${form.priorReport === o ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600"}`}>{o}</button>
+                <button key={o} onClick={() => update("priorReport", o)} className={`px-4 py-1.5 rounded-xl text-sm border transition-colors ${form.priorReport === o ? `${category.color.fill} text-white border-transparent` : "border-slate-300 text-slate-600"}`}>{o}</button>
               ))}
             </div>
             {form.priorReport === "Yes" && (
@@ -1378,6 +1408,12 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
 
       {step === 3 && (
         <div>
+          <div className={`flex items-start gap-2.5 ${category.color.bg} border border-slate-200/60 rounded-xl p-3.5 mb-5`}>
+            <category.icon size={15} className={`${category.color.text} mt-0.5 flex-shrink-0`} />
+            <p className="text-xs text-slate-600 leading-relaxed">
+              These questions are specific to <span className={`font-semibold ${category.color.text}`}>{category.label}</span> concerns — they help {category.team} understand the situation faster.
+            </p>
+          </div>
           {category.id === "unsure" ? (
             <p className="text-sm text-slate-500">No additional details needed — our triage team will determine the right category from your description.</p>
           ) : questions.length === 0 ? (
@@ -1400,7 +1436,7 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
                       <button
                         key={o}
                         onClick={() => update(q.id, o)}
-                        className={`px-4 py-1.5 rounded-xl text-sm border ${form[q.id] === o ? (q.id === "safetyRisk" && o === "Yes" ? "bg-red-600 text-white border-red-600" : "bg-teal-600 text-white border-teal-600") : "border-slate-300 text-slate-600"}`}
+                        className={`px-4 py-1.5 rounded-xl text-sm border transition-colors ${form[q.id] === o ? (q.id === "safetyRisk" && o === "Yes" ? "bg-red-600 text-white border-transparent" : `${category.color.fill} text-white border-transparent`) : "border-slate-300 text-slate-600"}`}
                       >
                         {o}
                       </button>
@@ -1521,9 +1557,9 @@ function Wizard({ category, step, setStep, form, update, toggleOutcome, addFile,
 
 function ReviewRow({ label, value }) {
   return (
-    <div className="flex items-start justify-between py-2 border-b border-slate-100 text-sm">
-      <span className="text-slate-500 w-32 flex-shrink-0">{label}</span>
-      <span className="text-slate-800 text-right flex-1">{value}</span>
+    <div className="py-2.5 border-b border-slate-100 last:border-0">
+      <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1">{label}</div>
+      <div className="text-sm text-slate-800 leading-relaxed">{value}</div>
     </div>
   );
 }
@@ -1531,12 +1567,15 @@ function ReviewRow({ label, value }) {
 function Confirmation({ caseId, category, disclosureType, onDone, onSupport }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-8 text-center">
-      <SuccessGraphic />
-      <h2 className="text-lg font-bold text-slate-900 mb-1">Thank you for speaking up</h2>
-      <p className="text-sm text-slate-600 mb-5">
-        Routed to <span className="font-medium text-slate-800">{category.team}</span>
-      </p>
+    <div className="relative">
+      <div className="pointer-events-none absolute -top-10 left-1/4 w-64 h-64 bg-teal-200/25 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-10 right-1/4 w-64 h-64 bg-indigo-200/25 rounded-full blur-3xl" />
+      <div className="relative bg-white border border-slate-200/70 rounded-3xl shadow-sm p-8 sm:p-10 text-center">
+        <SuccessGraphic />
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Thank you for speaking up</h2>
+        <p className="text-sm text-slate-600 mb-5">
+          Routed to <span className="font-medium text-slate-800">{category.team}</span>
+        </p>
       <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 mb-5">
         <span className="font-mono text-sm text-slate-800">{caseId}</span>
         <button onClick={() => { navigator.clipboard.writeText(caseId); setCopied(true); setTimeout(() => setCopied(false), 1500); }} className="text-slate-500 hover:text-teal-700">
@@ -1557,45 +1596,55 @@ function Confirmation({ caseId, category, disclosureType, onDone, onSupport }) {
         </p>
       </div>
       <button onClick={onDone} className="text-sm text-teal-700 hover:text-teal-800 font-semibold">Back to home</button>
+      </div>
     </div>
   );
 }
 
 function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
   return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-6">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
-        <ArrowLeft size={14} /> Back
-      </button>
-      <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
-        <Search size={20} />
-      </div>
-      <h2 className="text-lg font-semibold text-slate-900 mb-1">Track a case</h2>
-      <p className="text-sm text-slate-600 mb-5">Enter your case ID. No login required.</p>
-      <div className="flex gap-2 mb-5">
-        <input
-          className={inputCls}
-          placeholder="CNC-2026-000123"
-          value={trackInput}
-          onChange={(e) => setTrackInput(e.target.value)}
-        />
-        <button onClick={onLookup} className="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md hover:bg-teal-700 transition-all flex-shrink-0">Look up</button>
-      </div>
-
-      {trackResult === null && (
-        <p className="text-sm text-slate-500">No case found for that ID in this session. In production this would query the case database.</p>
-      )}
-      {trackResult && (
-        <div className="border border-slate-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-mono text-sm text-slate-800">{trackResult.id}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${URGENCY_STYLES[trackResult.urgency] || "bg-slate-100 text-slate-700"}`}>{trackResult.urgency}</span>
-          </div>
-          <ReviewRow label="Status" value={trackResult.status} />
-          <ReviewRow label="Team" value={trackResult.team} />
-          <ReviewRow label="Submitted" value={trackResult.submittedAt} />
+    <div className="relative">
+      <div className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 bg-teal-200/25 rounded-full blur-3xl" />
+      <div className="relative bg-white border border-slate-200/70 rounded-3xl shadow-sm p-6 sm:p-8">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
+          <ArrowLeft size={14} /> Back
+        </button>
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white flex items-center justify-center mb-4 shadow-sm">
+          <Search size={20} />
         </div>
-      )}
+        <h2 className="text-xl font-bold text-slate-900 mb-1">Track a case</h2>
+        <p className="text-sm text-slate-600 mb-5">Enter your case ID. No login required.</p>
+        <div className="flex gap-2 mb-5">
+          <input
+            className={inputCls}
+            placeholder="CNC-2026-000123"
+            value={trackInput}
+            onChange={(e) => setTrackInput(e.target.value)}
+          />
+          <button onClick={onLookup} className="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md hover:bg-teal-700 transition-all flex-shrink-0">Look up</button>
+        </div>
+
+        {trackResult === null && (
+          <p className="text-sm text-slate-500">No case found for that ID in this session. In production this would query the case database.</p>
+        )}
+        {trackResult && (
+          <div className={`border rounded-2xl p-5 ${STATUS_STYLES[trackResult.status] ? "border-teal-200 bg-teal-50/40" : "border-slate-200"}`}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-mono text-sm font-semibold text-slate-800">{trackResult.id}</span>
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${URGENCY_STYLES[trackResult.urgency] || "bg-slate-100 text-slate-700"}`}>{trackResult.urgency}</span>
+            </div>
+            <div className="flex items-center gap-1.5 mb-4">
+              {STATUS_FLOW.map((s, i) => {
+                const idx = STATUS_FLOW.indexOf(trackResult.status);
+                return <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= idx ? "bg-teal-500" : "bg-slate-200"}`} />;
+              })}
+            </div>
+            <ReviewRow label="Status" value={trackResult.status} />
+            <ReviewRow label="Team" value={trackResult.team} />
+            <ReviewRow label="Submitted" value={trackResult.submittedAt} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1687,6 +1736,7 @@ function Analytics({ cases }) {
   const categoryCounts = [...CATEGORIES, UNSURE_CATEGORY].map((c) => ({
     label: c.label,
     count: cases.filter((k) => k.category === c.id).length,
+    colorClass: c.color.fill,
   })).filter((c) => c.count > 0).sort((a, b) => b.count - a.count);
 
   const statusCounts = STATUS_FLOW.map((s) => ({ label: s, count: cases.filter((c) => c.status === s).length }));
@@ -1699,8 +1749,11 @@ function Analytics({ cases }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Analytics</h1>
-      <p className="text-sm text-slate-600 mb-6">Aggregate trends across all teams — {total} case{total !== 1 ? "s" : ""} tracked this session.</p>
+      <ResourceHeader
+        icon={BarChart3} title="Analytics"
+        desc={`Aggregate trends across all teams — ${total} case${total !== 1 ? "s" : ""} tracked this session.`}
+        from="from-slate-900" to="to-teal-950" iconText="text-teal-300"
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <StatCard label="Total cases" value={total} icon={FileText} bg="bg-slate-100" text="text-slate-600" />
@@ -1714,7 +1767,7 @@ function Analytics({ cases }) {
         {categoryCounts.length === 0 ? (
           <p className="text-sm text-slate-400">No cases yet.</p>
         ) : (
-          categoryCounts.map((c) => <BarRow key={c.label} label={c.label} count={c.count} total={total} />)
+          categoryCounts.map((c) => <BarRow key={c.label} label={c.label} count={c.count} total={total} colorClass={c.colorClass} />)
         )}
       </div>
 
@@ -1805,15 +1858,24 @@ function InvestigatorLogin({ onLogin, onBack }) {
 function InvestigatorDashboard({ cases, onOpen, onReset }) {
   const sorted = [...cases].sort((a, b) => (URGENCY_RANK[a.urgency] ?? 9) - (URGENCY_RANK[b.urgency] ?? 9));
   const openCount = cases.filter((c) => c.status !== "Closed" && c.status !== "Resolved").length;
+  const urgentCount = cases.filter((c) => c.urgency === "immediate" || c.urgency === "high").length;
+  const resolvedCount = cases.length - openCount;
 
   return (
     <div>
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 mb-1">Case queue</h1>
-          <p className="text-sm text-slate-600 mb-6">{cases.length} case{cases.length !== 1 ? "s" : ""} routed to your team · {openCount} open</p>
+          <p className="text-sm text-slate-600">Cases routed to your team, sorted by urgency</p>
         </div>
         <button onClick={onReset} className="text-xs text-slate-400 hover:text-slate-600 mt-1">Reset demo data</button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <StatCard label="Total cases" value={cases.length} icon={FileText} bg="bg-slate-100" text="text-slate-600" />
+        <StatCard label="Open" value={openCount} icon={Clock} bg="bg-amber-50" text="text-amber-600" />
+        <StatCard label="High/Immediate" value={urgentCount} icon={AlertTriangle} bg="bg-red-50" text="text-red-600" />
+        <StatCard label="Resolved/Closed" value={resolvedCount} icon={Check} bg="bg-teal-50" text="text-teal-600" />
       </div>
 
       {sorted.length === 0 && (
@@ -1823,30 +1885,43 @@ function InvestigatorDashboard({ cases, onOpen, onReset }) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {sorted.map((c) => (
-          <button key={c.id} onClick={() => onOpen(c.id)} className="text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm p-4 hover:border-teal-600 transition-colors flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-xs text-slate-500">{c.id}</span>
-                <span className={`text-[11px] px-2 py-0.5 rounded-full ${URGENCY_STYLES[c.urgency] || "bg-slate-100 text-slate-700"}`}>{c.urgency}</span>
-                <span className={`text-[11px] px-2 py-0.5 rounded-full ${STATUS_STYLES[c.status] || "bg-slate-100 text-slate-700"}`}>{c.status}</span>
+        {sorted.map((c) => {
+          const cat = [...CATEGORIES, UNSURE_CATEGORY].find((x) => x.id === c.category) || UNSURE_CATEGORY;
+          return (
+            <button key={c.id} onClick={() => onOpen(c.id)} className="text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-stretch gap-0 overflow-hidden">
+              <div className={`w-1.5 flex-shrink-0 ${cat.color.fill}`} />
+              <div className="flex items-center justify-between gap-3 p-4 flex-1 min-w-0">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className={`w-9 h-9 rounded-xl ${cat.color.bg} ${cat.color.text} flex items-center justify-center flex-shrink-0`}>
+                    <cat.icon size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="font-mono text-xs text-slate-500">{c.id}</span>
+                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${URGENCY_STYLES[c.urgency] || "bg-slate-100 text-slate-700"}`}>{c.urgency}</span>
+                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${STATUS_STYLES[c.status] || "bg-slate-100 text-slate-700"}`}>{c.status}</span>
+                    </div>
+                    <div className="text-sm font-semibold text-slate-900">{c.categoryLabel}</div>
+                    <div className="text-xs text-slate-500 truncate max-w-xs">{c.summary}</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} className="text-slate-400 flex-shrink-0" />
               </div>
-              <div className="text-sm font-medium text-slate-900">{c.categoryLabel}</div>
-              <div className="text-xs text-slate-500 truncate">{c.summary}</div>
-            </div>
-            <ChevronRight size={16} className="text-slate-400 flex-shrink-0" />
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function DetailSection({ title, icon: Icon, children }) {
+function DetailSection({ title, icon: Icon, children, bg = "bg-teal-50", text = "text-teal-700" }) {
   return (
     <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 mb-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Icon size={15} className="text-teal-700" />
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className={`w-8 h-8 rounded-lg ${bg} ${text} flex items-center justify-center flex-shrink-0`}>
+          <Icon size={15} />
+        </div>
         <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
       </div>
       {children}
@@ -1857,6 +1932,7 @@ function DetailSection({ title, icon: Icon, children }) {
 function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation, investigatorName }) {
   const [inv, setInv] = useState(c.investigation || emptyInvestigation());
   const [saved, setSaved] = useState(false);
+  const cat = [...CATEGORIES, UNSURE_CATEGORY].find((x) => x.id === c.category) || UNSURE_CATEGORY;
 
   function updateInv(field, value) {
     setInv((f) => ({ ...f, [field]: value }));
@@ -1874,118 +1950,140 @@ function InvestigatorCaseDetail({ c, onBack, onStatusChange, onSaveInvestigation
         <ArrowLeft size={14} /> Back to queue
       </button>
 
-      <div className="flex items-center gap-2 mb-1">
-        <span className="font-mono text-sm text-slate-600">{c.id}</span>
-        <span className={`text-[11px] px-2 py-0.5 rounded-full ${URGENCY_STYLES[c.urgency] || "bg-slate-100 text-slate-700"}`}>{c.urgency}</span>
-      </div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">{c.categoryLabel}</h1>
-      <p className="text-sm text-slate-600 mb-5">
-        Reported by {c.disclosureType === "named" ? `${c.employeeName} (${c.employeeId})` : "Anonymous"} · Submitted {c.submittedAt}
-      </p>
-
-      <DetailSection title="Status" icon={ClipboardList}>
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FLOW.map((s) => (
-            <button key={s} onClick={() => onStatusChange(s)} className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${c.status === s ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
-              {s}
-            </button>
-          ))}
-        </div>
-        {(c.status === "Resolved" || c.status === "Closed") && (
-          <div className="mt-3 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
-            <Lock size={13} className="text-slate-500 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-slate-600">
-              {c.disclosureType === "named"
-                ? `Notification would be sent directly to ${c.employeeName}.`
-                : "No direct notification — the reporter must check status via their case ID."}
+      <div className={`bg-gradient-to-br ${cat.color.from} to-white border border-slate-200/70 rounded-3xl p-6 sm:p-7 mb-6`}>
+        <div className="flex items-center gap-4">
+          <div className={`w-14 h-14 rounded-2xl ${cat.color.fill} text-white flex items-center justify-center flex-shrink-0 shadow-sm`}>
+            <cat.icon size={26} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+              <span className="font-mono text-xs text-slate-500">{c.id}</span>
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${URGENCY_STYLES[c.urgency] || "bg-slate-100 text-slate-700"}`}>{c.urgency}</span>
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLES[c.status] || "bg-slate-100 text-slate-700"}`}>{c.status}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">{c.categoryLabel}</h1>
+            <p className="text-sm text-slate-600 mt-0.5">
+              Reported by {c.disclosureType === "named" ? `${c.employeeName} (${c.employeeId})` : "Anonymous"} · Submitted {c.submittedAt}
             </p>
           </div>
-        )}
-      </DetailSection>
-
-      <DetailSection title="What happened" icon={FileText}>
-        {c.draftSummary && (
-          <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3.5 mb-3">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Sparkles size={12} className="text-indigo-500" />
-              <span className="text-xs font-semibold text-indigo-900">AI-drafted summary (reviewed by reporter)</span>
-            </div>
-            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{c.draftSummary}</p>
-          </div>
-        )}
-        <ReviewRow label="Raw description" value={c.summary || "—"} />
-        <ReviewRow label="Occurred" value={c.occurredDate || "—"} />
-        <ReviewRow label="Ongoing" value={c.isOngoing || "—"} />
-        <ReviewRow label="Location" value={c.location || "—"} />
-      </DetailSection>
-
-      <DetailSection title="People & evidence" icon={Users}>
-        <ReviewRow label="Others involved" value={c.othersInvolved || "—"} />
-        <ReviewRow label="Relationship to those involved" value={c.relationshipToInvolved || "—"} />
-        <ReviewRow label="Witnesses" value={c.witnesses || "—"} />
-        <ReviewRow label="Prior report" value={c.priorReport || "—"} />
-        <ReviewRow label="Attachments" value={c.attachments?.length ? c.attachments.join(", ") : "None"} />
-      </DetailSection>
-
-      {Object.keys(c.categoryAnswers || {}).length > 0 && (
-        <DetailSection title="Category-specific details" icon={ClipboardCheck}>
-          {Object.values(c.categoryAnswers).map((a, i) => (
-            <ReviewRow key={i} label={a.label} value={a.value} />
-          ))}
-        </DetailSection>
-      )}
-
-      <DetailSection title="Impact & desired outcome" icon={AlertTriangle}>
-        <ReviewRow label="Impact" value={c.impactDescription || "—"} />
-        <ReviewRow label="Desired outcome" value={c.desiredOutcome?.length ? c.desiredOutcome.join(", ") : "—"} />
-      </DetailSection>
-
-      <DetailSection title="Investigation" icon={ClipboardList}>
-        <Field label="Investigation start date">
-          <input type="date" className={inputCls} value={inv.startDate} onChange={(e) => updateInv("startDate", e.target.value)} />
-        </Field>
-        <Field label="Actions taken" help="Interviews conducted, documents reviewed, systems checked">
-          <textarea rows={2} className={inputCls} value={inv.actionsTaken} onChange={(e) => updateInv("actionsTaken", e.target.value)} />
-        </Field>
-        <Field label="Findings summary">
-          <textarea rows={2} className={inputCls} value={inv.findings} onChange={(e) => updateInv("findings", e.target.value)} />
-        </Field>
-        <Field label="Outcome classification">
-          <select className={inputCls} value={inv.outcome} onChange={(e) => updateInv("outcome", e.target.value)}>
-            <option value="">Select one</option>
-            <option>Substantiated</option><option>Partially substantiated</option><option>Unsubstantiated</option><option>Inconclusive</option>
-          </select>
-        </Field>
-        <Field label="Corrective action" help="If any">
-          <textarea rows={2} className={inputCls} value={inv.correctiveAction} onChange={(e) => updateInv("correctiveAction", e.target.value)} />
-        </Field>
-        <Field label="Closure notes">
-          <textarea rows={2} className={inputCls} value={inv.closureNotes} onChange={(e) => updateInv("closureNotes", e.target.value)} />
-        </Field>
-        <Field label="Internal-only comments" help="Never visible to the reporter">
-          <textarea rows={2} className={inputCls} value={inv.internalComments} onChange={(e) => updateInv("internalComments", e.target.value)} />
-        </Field>
-        <div className="flex items-center gap-3 mt-2">
-          <button onClick={handleSave} className="bg-teal-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:bg-teal-700 transition-all">
-            Save investigation
-          </button>
-          {saved && <span className="text-xs text-teal-700">Saved</span>}
         </div>
-      </DetailSection>
+      </div>
 
-      <DetailSection title="Audit trail" icon={Clock}>
-        <div className="flex flex-col gap-2">
-          {c.auditLog.map((entry, i) => (
-            <div key={i} className="flex items-start justify-between text-xs border-b border-slate-100 pb-2 last:border-0">
-              <div>
-                <div className="text-slate-800">{entry.action}</div>
-                <div className="text-slate-400">{entry.actor}</div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Left: narrative content */}
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          <DetailSection title="What happened" icon={FileText} bg="bg-indigo-50" text="text-indigo-600">
+            {c.draftSummary && (
+              <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-3">
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Sparkles size={12} className="text-indigo-500" />
+                  <span className="text-xs font-semibold text-indigo-900">AI-drafted summary (reviewed by reporter)</span>
+                </div>
+                <p className="text-[15px] text-slate-700 leading-relaxed whitespace-pre-wrap">{c.draftSummary}</p>
               </div>
-              <div className="text-slate-400 flex-shrink-0 ml-3">{entry.timestamp}</div>
+            )}
+            <ReviewRow label="Raw description" value={c.summary || "—"} />
+            <div className="grid grid-cols-2 gap-x-4">
+              <ReviewRow label="Occurred" value={c.occurredDate || "—"} />
+              <ReviewRow label="Ongoing" value={c.isOngoing || "—"} />
             </div>
-          ))}
+            <ReviewRow label="Location" value={c.location || "—"} />
+          </DetailSection>
+
+          <DetailSection title="People & evidence" icon={Users} bg="bg-violet-50" text="text-violet-600">
+            <ReviewRow label="Others involved" value={c.othersInvolved || "—"} />
+            <ReviewRow label="Relationship to those involved" value={c.relationshipToInvolved || "—"} />
+            <ReviewRow label="Witnesses" value={c.witnesses || "—"} />
+            <div className="grid grid-cols-2 gap-x-4">
+              <ReviewRow label="Prior report" value={c.priorReport || "—"} />
+              <ReviewRow label="Attachments" value={c.attachments?.length ? c.attachments.join(", ") : "None"} />
+            </div>
+          </DetailSection>
+
+          {Object.keys(c.categoryAnswers || {}).length > 0 && (
+            <DetailSection title="Category-specific details" icon={ClipboardCheck} bg={cat.color.bg} text={cat.color.text}>
+              {Object.values(c.categoryAnswers).map((a, i) => (
+                <ReviewRow key={i} label={a.label} value={a.value} />
+              ))}
+            </DetailSection>
+          )}
+
+          <DetailSection title="Impact & desired outcome" icon={AlertTriangle} bg="bg-amber-50" text="text-amber-600">
+            <ReviewRow label="Impact" value={c.impactDescription || "—"} />
+            <ReviewRow label="Desired outcome" value={c.desiredOutcome?.length ? c.desiredOutcome.join(", ") : "—"} />
+          </DetailSection>
         </div>
-      </DetailSection>
+
+        {/* Right: status + actions, sticky */}
+        <div className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-4">
+          <DetailSection title="Status" icon={ClipboardList} bg="bg-slate-100" text="text-slate-600">
+            <div className="flex flex-wrap gap-2">
+              {STATUS_FLOW.map((s) => (
+                <button key={s} onClick={() => onStatusChange(s)} className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${c.status === s ? "bg-teal-600 text-white border-teal-600" : "border-slate-300 text-slate-600 hover:bg-slate-50"}`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+            {(c.status === "Resolved" || c.status === "Closed") && (
+              <div className="mt-3 flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <Lock size={13} className="text-slate-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-slate-600">
+                  {c.disclosureType === "named"
+                    ? `Notification would be sent directly to ${c.employeeName}.`
+                    : "No direct notification — the reporter must check status via their case ID."}
+                </p>
+              </div>
+            )}
+          </DetailSection>
+
+          <DetailSection title="Investigation" icon={ClipboardList} bg="bg-teal-50" text="text-teal-600">
+            <Field label="Investigation start date">
+              <input type="date" className={inputCls} value={inv.startDate} onChange={(e) => updateInv("startDate", e.target.value)} />
+            </Field>
+            <Field label="Actions taken" help="Interviews conducted, documents reviewed, systems checked">
+              <textarea rows={2} className={inputCls} value={inv.actionsTaken} onChange={(e) => updateInv("actionsTaken", e.target.value)} />
+            </Field>
+            <Field label="Findings summary">
+              <textarea rows={2} className={inputCls} value={inv.findings} onChange={(e) => updateInv("findings", e.target.value)} />
+            </Field>
+            <Field label="Outcome classification">
+              <select className={inputCls} value={inv.outcome} onChange={(e) => updateInv("outcome", e.target.value)}>
+                <option value="">Select one</option>
+                <option>Substantiated</option><option>Partially substantiated</option><option>Unsubstantiated</option><option>Inconclusive</option>
+              </select>
+            </Field>
+            <Field label="Corrective action" help="If any">
+              <textarea rows={2} className={inputCls} value={inv.correctiveAction} onChange={(e) => updateInv("correctiveAction", e.target.value)} />
+            </Field>
+            <Field label="Closure notes">
+              <textarea rows={2} className={inputCls} value={inv.closureNotes} onChange={(e) => updateInv("closureNotes", e.target.value)} />
+            </Field>
+            <Field label="Internal-only comments" help="Never visible to the reporter">
+              <textarea rows={2} className={inputCls} value={inv.internalComments} onChange={(e) => updateInv("internalComments", e.target.value)} />
+            </Field>
+            <div className="flex items-center gap-3 mt-2">
+              <button onClick={handleSave} className="bg-teal-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md hover:bg-teal-700 transition-all">
+                Save investigation
+              </button>
+              {saved && <span className="text-xs text-teal-700">Saved</span>}
+            </div>
+          </DetailSection>
+
+          <DetailSection title="Audit trail" icon={Clock} bg="bg-slate-100" text="text-slate-600">
+            <div className="flex flex-col gap-2">
+              {c.auditLog.map((entry, i) => (
+                <div key={i} className="flex items-start justify-between text-xs border-b border-slate-100 pb-2 last:border-0">
+                  <div>
+                    <div className="text-slate-800">{entry.action}</div>
+                    <div className="text-slate-400">{entry.actor}</div>
+                  </div>
+                  <div className="text-slate-400 flex-shrink-0 ml-3">{entry.timestamp}</div>
+                </div>
+              ))}
+            </div>
+          </DetailSection>
+        </div>
+      </div>
     </div>
   );
 }
