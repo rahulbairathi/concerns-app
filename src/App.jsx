@@ -878,14 +878,18 @@ function DescribeConcern({ onSelect, onManual, onBack, onSupport }) {
 
   return (
     <div className="relative">
-      <div className="pointer-events-none absolute -top-16 -right-10 w-72 h-72 bg-teal-200/25 rounded-full blur-3xl" />
-      <div className="pointer-events-none absolute top-40 -left-16 w-72 h-72 bg-indigo-200/25 rounded-full blur-3xl" />
+      <button onClick={onBack} className="relative flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+        <ArrowLeft size={14} /> Back
+      </button>
+
+      <ResourceHeader
+        icon={Sparkles} title="What would you like to report?"
+        desc="Describe what happened in your own words. Trust AI will suggest which team it likely belongs to — you'll always confirm before it's submitted."
+        from="from-slate-900" to="to-indigo-950" iconText="text-teal-300"
+        badge={<><Sparkles size={11} className="text-indigo-600" /> AI-assisted</>}
+      />
 
       <div className="relative">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
-          <ArrowLeft size={14} /> Back
-        </button>
-
         <div className="flex items-start gap-2.5 bg-gradient-to-r from-rose-50 to-indigo-50 border border-rose-100 rounded-2xl p-4 mb-5">
           <Heart size={16} className="text-rose-500 mt-0.5 flex-shrink-0" />
           <p className="text-xs text-slate-700 leading-relaxed">
@@ -898,19 +902,7 @@ function DescribeConcern({ onSelect, onManual, onBack, onSupport }) {
         </div>
 
         <div className="bg-white border border-slate-200/70 rounded-3xl shadow-sm p-6 sm:p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-              <Sparkles size={20} />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-100 text-teal-700 text-[11px] font-semibold px-2.5 py-1 rounded-full mb-1">
-                AI-assisted routing
-              </div>
-              <h1 className="text-xl font-bold text-slate-900">What would you like to report?</h1>
-            </div>
-          </div>
-          <p className="text-sm text-slate-600 mb-5">Describe what happened in your own words. Trust AI will suggest which team it likely belongs to — you'll always confirm before it's submitted.</p>
-
+          <div className="text-sm font-semibold text-slate-800 mb-3">Describe what happened</div>
           <textarea
             rows={5}
             className={inputCls}
@@ -1014,12 +1006,13 @@ function CountrySelector({ country, setCountry, onChange }) {
   );
 }
 
-function ResourceHeader({ icon: Icon, title, desc, from, to, iconText }) {
+function ResourceHeader({ icon: Icon, title, desc, from, to, iconText, badge }) {
   return (
     <div className={`relative bg-gradient-to-br ${from} ${to} rounded-3xl p-6 sm:p-7 mb-6 overflow-hidden`}>
       <div className="pointer-events-none absolute inset-0 opacity-[0.1]" style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
+      <div className="pointer-events-none absolute -top-8 -right-8 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
       <div className="relative flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 ${iconText} flex items-center justify-center flex-shrink-0`}>
+        <div className={`w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 ${iconText} flex items-center justify-center flex-shrink-0 shadow-lg`}>
           <Icon size={22} />
         </div>
         <div>
@@ -1027,6 +1020,11 @@ function ResourceHeader({ icon: Icon, title, desc, from, to, iconText }) {
           <p className="text-sm text-slate-200 max-w-lg">{desc}</p>
         </div>
       </div>
+      {badge && (
+        <div className="absolute top-5 right-5 bg-white/95 backdrop-blur text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hidden sm:flex items-center gap-1.5">
+          {badge}
+        </div>
+      )}
     </div>
   );
 }
@@ -1047,6 +1045,7 @@ function PolicyCorner({ onBack }) {
         icon={Globe} title="Policy corner"
         desc="Policies vary by country. Select where you're based to see what applies to you."
         from="from-slate-900" to="to-indigo-950" iconText="text-indigo-300"
+        badge={<><Globe size={11} className="text-indigo-600" /> 6 regions</>}
       />
 
       <CountrySelector country={country} setCountry={setCountry} onChange={() => setOpenIdx(null)} />
@@ -1094,6 +1093,7 @@ function ReportingChannels({ onBack }) {
         icon={Phone} title="Other ways to report"
         desc="You don't have to use this app to raise a concern. These channels are staffed independently — including the option to stay anonymous."
         from="from-teal-700" to="to-teal-900" iconText="text-teal-200"
+        badge={<><Lock size={11} className="text-teal-600" /> Anonymous option</>}
       />
 
       <CountrySelector country={country} setCountry={setCountry} />
@@ -1140,6 +1140,7 @@ function WellbeingResources({ onBack, onSupport }) {
         icon={Heart} title="Mental health & wellbeing"
         desc="These resources are separate from Trust AI and from your employer's reporting system. Reaching out is confidential."
         from="from-rose-600" to="to-rose-900" iconText="text-rose-100"
+        badge={<><Heart size={11} className="text-rose-600" /> Confidential</>}
       />
 
       <CountrySelector country={country} setCountry={setCountry} />
@@ -1208,9 +1209,9 @@ function CategoryPicker({ onSelect, onBack }) {
             <button
               key={c.id}
               onClick={() => onSelect(c)}
-              className={`text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 hover:shadow-md hover:-translate-y-0.5 hover:${c.color.ring} transition-all`}
+              className={`group text-left bg-white border border-slate-200/70 rounded-2xl shadow-sm p-5 hover:shadow-xl hover:-translate-y-1 hover:${c.color.ring} transition-all duration-200`}
             >
-              <div className={`w-10 h-10 rounded-xl ${c.color.bg} ${c.color.text} flex items-center justify-center mb-3`}>
+              <div className={`w-10 h-10 rounded-xl ${c.color.bg} ${c.color.text} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-200`}>
                 <Icon size={19} />
               </div>
               <div className="text-sm font-semibold text-slate-900 mb-1">{c.label}</div>
@@ -1604,16 +1605,16 @@ function Confirmation({ caseId, category, disclosureType, onDone, onSupport }) {
 function Track({ trackInput, setTrackInput, trackResult, onLookup, onBack }) {
   return (
     <div className="relative">
-      <div className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 bg-teal-200/25 rounded-full blur-3xl" />
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-5">
+        <ArrowLeft size={14} /> Back
+      </button>
+      <ResourceHeader
+        icon={Search} title="Track a case"
+        desc="Enter your case ID below. No login required, even for anonymous reports."
+        from="from-teal-700" to="to-teal-900" iconText="text-teal-200"
+        badge={<><Lock size={11} className="text-teal-600" /> No login</>}
+      />
       <div className="relative bg-white border border-slate-200/70 rounded-3xl shadow-sm p-6 sm:p-8">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-800 mb-6">
-          <ArrowLeft size={14} /> Back
-        </button>
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-700 text-white flex items-center justify-center mb-4 shadow-sm">
-          <Search size={20} />
-        </div>
-        <h2 className="text-xl font-bold text-slate-900 mb-1">Track a case</h2>
-        <p className="text-sm text-slate-600 mb-5">Enter your case ID. No login required.</p>
         <div className="flex gap-2 mb-5">
           <input
             className={inputCls}
@@ -1698,15 +1699,16 @@ function HrLogin({ onLogin, onBack }) {
 
 function StatCard({ label, value, sub, icon: Icon, bg, text }) {
   return (
-    <div className="bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-md transition-shadow p-5">
+    <div className="group relative bg-white border border-slate-200/70 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all p-5 overflow-hidden">
+      <div className={`pointer-events-none absolute -top-6 -right-6 w-20 h-20 ${bg} rounded-full blur-2xl opacity-0 group-hover:opacity-60 transition-opacity`} />
       {Icon && (
-        <div className={`w-9 h-9 rounded-xl ${bg} ${text} flex items-center justify-center mb-3`}>
-          <Icon size={17} />
+        <div className={`relative w-10 h-10 rounded-xl ${bg} ${text} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+          <Icon size={18} />
         </div>
       )}
-      <div className="text-2xl font-bold text-slate-900">{value}</div>
-      <div className="text-xs text-slate-500 mt-0.5">{label}</div>
-      {sub && <div className="text-[11px] text-slate-400 mt-1">{sub}</div>}
+      <div className="relative text-3xl font-extrabold bg-gradient-to-br from-teal-600 to-indigo-600 bg-clip-text text-transparent">{value}</div>
+      <div className="relative text-xs text-slate-500 mt-0.5 font-medium">{label}</div>
+      {sub && <div className="relative text-[11px] text-slate-400 mt-1">{sub}</div>}
     </div>
   );
 }
@@ -1714,13 +1716,15 @@ function StatCard({ label, value, sub, icon: Icon, bg, text }) {
 function BarRow({ label, count, total, colorClass = "bg-teal-600" }) {
   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
   return (
-    <div className="mb-3 last:mb-0">
-      <div className="flex items-center justify-between text-xs mb-1">
-        <span className="text-slate-700">{label}</span>
-        <span className="text-slate-500">{count}</span>
+    <div className="mb-3.5 last:mb-0">
+      <div className="flex items-center justify-between text-xs mb-1.5">
+        <span className="text-slate-700 font-medium">{label}</span>
+        <span className="text-slate-500 font-semibold">{count}</span>
       </div>
-      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-        <div className={`h-full ${colorClass} rounded-full`} style={{ width: `${pct}%` }} />
+      <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className={`h-full ${colorClass} rounded-full shadow-sm transition-all duration-700 ease-out relative overflow-hidden`} style={{ width: `${pct}%` }}>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0" />
+        </div>
       </div>
     </div>
   );
@@ -1753,6 +1757,7 @@ function Analytics({ cases }) {
         icon={BarChart3} title="Analytics"
         desc={`Aggregate trends across all teams — ${total} case${total !== 1 ? "s" : ""} tracked this session.`}
         from="from-slate-900" to="to-teal-950" iconText="text-teal-300"
+        badge={<><Lock size={11} className="text-teal-600" /> No case details</>}
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
